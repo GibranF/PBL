@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+    margin: auto;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: rgba(255, 105, 180, 0.2); /* Latar pink transparan */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* === Login Container === */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.container {
+    background: #fff;
+    width: 900px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.form-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+}
+
+.image-side {
+    width: 50%;
+    padding: 20px;
+}
+
+.image-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.text-side {
+    width: 50%;
+    padding: 20px;
+}
+
+.text-side .title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.input-boxes .input-box {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #d63384;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 12px 12px 12px 45px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 16px;
+}
+
+.input-box input:focus {
+    border-color: #d63384;
+}
+
+.button input {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff69b4, #800080);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.button input:hover {
+    background: linear-gradient(135deg, #ff85c1, #9932cc);
+}
+
+.text-side .text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+.text-side .text a {
+    color: #d63384;
+    text-decoration: none;
+}
+
+.text-side .text a:hover {
+    text-decoration: underline;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .form-content {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .image-side, .text-side {
+        width: 100%;
+    }
+}
+
+/* === Reset Password Styling === */
+body.reset-password-body {
+    background: linear-gradient(135deg, #ff69b4, #800080);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.reset-container {
+    background: #fff;
+    width: 400px;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.reset-password-form {
+    text-align: center;
+}
+
+.reset-password-form .title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.reset-password-form .input-boxes {
+    margin-bottom: 20px;
+}
+
+.reset-password-form .reset-email,
+.reset-password-form .reset-password-input,
+.reset-password-form .reset-confirm-password {
+    margin-bottom: 20px;
+}
+
+.reset-password-form .reset-email input,
+.reset-password-form .reset-password-input input,
+.reset-password-form .reset-confirm-password input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 16px;
+}
+
+.reset-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff69b4, #800080);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.reset-button:hover {
+    background: linear-gradient(135deg, #ff85c1, #9932cc);
+}
+
+/* === Error Styling === */
+.input-box input.error {
+    border-color: #e74c3c;
+    background-color: #fff5f5;
+}
+
+.error-message {
+    display: block;
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-left: 45px;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .error-message {
+        font-size: 12px;
+        margin-left: 35px;
+    }
+
+    .input-box input.error {
+        padding: 10px 10px 10px 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-message {
+        font-size: 11px;
+        margin-left: 30px;
+    }
+
+    .input-box input.error {
+        padding: 8px 8px 8px 30px;
+    }
+}

@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+/* Container Card */
+.updatepesanan .card {
+    background-color: #fff;
+    border-radius: 16px; /* Sudut melengkung */
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Efek bayangan */
+}
+
+/* Title */
+.updatepesanan h4 {
+    font-family: 'Poppins', sans-serif ;
+    font-weight: 600 ;
+    color: #4B0082 ;
+    margin-bottom: 20px;
+}
+
+/* Label */
+.updatepesanan .form-label {
+    font-weight: 600; /* Bold label */
+    color: #4a4a4a;
+    margin-bottom: 8px;
+}
+
+/* Input Fields */
+.updatepesanan .form-control, 
+.updatepesanan .form-select {
+    border-radius: 12px; /* Sudut melengkung pada input */
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+}
+
+/* Submit Button */
+.updatepesanan .btn-submit {
+    padding: 10px 20px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #7C3AED; /* Warna ungu */
+    color: #fff;
+}
+
+.updatepesanan .btn-submit:hover {
+    background-color: #6b21a8;
+}
+
+/* Layout for Flexbox and Responsiveness */
+.updatepesanan form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Center the buttons at the end */
+.updatepesanan .d-flex {
+    display: flex;
+    justify-content: flex-end;
+}
