@@ -30,256 +30,288 @@
     <link href="assets/css/main.css" rel="stylesheet">
     <link href="assets/css/layanan.css" rel="stylesheet">
     <link href="assets/css/navbar.css" rel="stylesheet">
+    <link href="assets/css/slider2.css" rel="stylesheet">
 </head>
 
 <body class="index-page">
     <x-navbar/>
     <main class="main">
-        <!-- Hero Section -->
-        <section id="hero" class="hero section">
-            <div class="container" data-aos="fade-up" data-aos-delay="100">
-                <div class="row align-items-center">
-                    <div class="col-lg-6">
-                        <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
-                            <div class="company-badge mb-4 pulse">
-                                <i class="bi bi-stars me-2"></i>
-                                ISLAND - Istana Laundry
-                            </div>
-                            <h1 class="mb-4">
-                                Modern & Cepat <br>
-                                Layanan Laundry <br>
-                                <span class="accent-text">Antar Jemput</span>
-                            </h1>
-                            <p class="mb-4 mb-md-5">
-                                ISLAND – Percayakan cucianmu pada layanan profesional dengan hasil bersih dan rapi
-                                setiap hari.
-                            </p>
-                            <div class="hero-buttons d-flex flex-wrap gap-2">
-                                <a href="#about" class="btn btn-primary me-0 me-sm-2 mx-1 btn-modern">
-                                    <i class="bi bi-search me-1"></i> Cek Layanan
-                                </a>
-                                <a href="#contact" class="btn btn-primary me-0 me-sm-2 mx-1 btn-modern">
-                                    <i class="bi bi-telephone me-1"></i> Hubungi Kami
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="hero-image" data-aos="zoom-out" data-aos-delay="300">
-                            <img src="/assets/img/logo.png" alt="Hero Image" class="img-fluid floating">
-                            <div class="customers-badge floating">
-                                <p class="mb-0 mt-2">Dipercaya oleh ribuan pelanggan di area 3-5 KM sekitar outlet kami
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row stats-row gy-4 mt-5" data-aos="fade-up" data-aos-delay="500">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-gear"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h4>10 Mesin Aktif</h4>
-                                <p class="mb-0">8 untuk baju, 2 untuk karpet</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-clock-history"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h4>14 Jam Operasional</h4>
-                                <p class="mb-0">Setiap hari 07.00 - 21.00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-bell"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h4>Notifikasi Pesanan</h4>
-                                <p class="mb-0">Langsung ke pemilik usaha</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-cash-coin"></i>
-                            </div>
-                            <div class="stat-content">
-                                <h4>Pembayaran Mudah</h4>
-                                <p class="mb-0">QRIS, Transfer, dan Tunai</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <hr style="border: 1px solid #ccc; margin: 0;">
 
-        <!-- About Section -->
-        <section id="about" class="about section">
-            <div class="container" data-aos="fade-up" data-aos-delay="100">
-                <div class="row gy-4 align-items-center justify-content-between">
-                    <div class="col-xl-5" data-aos="fade-up" data-aos-delay="200">
-                        <span class="about-meta">TENTANG KAMI</span>
-                        <h2 class="about-title">Istana Laundry - Solusi Cuci Praktis dan Bersih</h2>
-                        <p class="about-description">
-                            Istana Laundry hadir untuk memberikan layanan laundry yang cepat, bersih, dan berkualitas.
-                            Dengan staf profesional dan peralatan modern, kami memastikan pakaian anda terawat, rapi,
-                            dan wangi setiap
-                            hari.
-                        </p>
-                        <div class="row feature-list-wrapper">
-                            <div class="col-md-6">
-                                <ul class="feature-list">
-                                    <li><i class="bi bi-check-circle-fill"></i> Proses cepat & profesional</li>
-                                    <li><i class="bi bi-check-circle-fill"></i> Layanan antar-jemput gratis setiap 3 KM
-                                    </li>
-                                    <li><i class="bi bi-check-circle-fill"></i> Pakaian rapi & wangi</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul class="feature-list">
-                                    <li><i class="bi bi-check-circle-fill"></i> Buka setiap hari 07.00 - 21.00</li>
-                                    <li><i class="bi bi-check-circle-fill"></i> Harga terjangkau & transparan</li>
-                                    <li><i class="bi bi-check-circle-fill"></i> Area layanan hingga lebih dari 3 KM
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="info-wrapper mt-4">
-                            <div class="row gy-4">
-                                <div class="col-lg-6">
-                                    <a href="{{ route('customer.pesanan.create') }}"
-                                        style="text-decoration: none; color: inherit;">
-                                        <div class="contact-info d-flex align-items-center gap-2">
-                                            <i class="bi bi-telephone-fill"></i>
-                                            <div>
-                                                <p class="contact-label">Pesan sekarang juga!</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="contact-info d-flex align-items-center gap-2">
-                                        <i class="bi bi-shop"></i>
-                                        <div>
-                                            <p class="contact-label">Istana Laundry, Pilihan tepat anda!</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="image-wrapper text-center">
-                            <img src="assets/img/logo.png" alt="ISLAND Laundry" class="img-fluid rounded-4">
-                            <div class="experience-badge floating mt-3">
-                                <h3>3+ <span>Tahun</span></h3>
-                                <p>Pengalaman melayani kebutuhan laundry</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <hr style="border: 1px solid #ccc; margin: 0;">
+<!-- Hero Section -->
+<section id="hero" class="hero section">
+
+  <!-- Container Slide -->
+  <div class="container-slide">
+    <div class="slide">
+
+<!-- Slide 1 -->
+<div class="item side-slide" style="background-image: url('assets/img/karpet.png');">
+  <div class="content">
+    <div class="name">Cuci Karpet</div>
+    <div class="des">Kami menjaga kualitas setiap cucian karpet agar tetap harum dan terawat, mengembalikan keindahan dan kebersihannya.</div>
+    <button>Selengkapnya</button>
+  </div>
+</div>
+
+<!-- Slide 2 -->
+<div class="item side-slide" style="background-image: url('assets/img/koin.png');">
+  <div class="content">
+    <div class="name">Cuci Koin Mandiri</div>
+    <div class="des">Nikmati layanan self-service yang cepat dan efisien dengan mesin cuci dan pengering modern kami.</div>
+    <button>Selengkapnya</button>
+  </div>
+</div>
+
+      <!-- Slide 3 -->
+      <div class="item side-slide" style="background-image: url('assets/img/antarjemput.png');">
+        <div class="content">
+          <div class="name">Antar Jemput</div>
+          <div class="des">Layanan antar jemput kami memudahkan Anda untuk mencuci pakaian tanpa perlu keluar rumah. Cucian dijemput dan diantar kembali dalam kondisi bersih dan rapi.</div>
+          <button>Selengkapnya</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tombol navigasi -->
+    <div class="button">
+      <button class="prev"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="next"><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let slides = document.querySelectorAll(".item");
+  let slideContainer = document.querySelector(".slide");
+  let pagination = document.querySelector(".button");
+
+  let current = 0;
+  let total = slides.length;
+  let intervalTime = 8000; // 8 detik
+  let autoSlide;
+
+  // bikin dot pagination sesuai jumlah slide
+  pagination.innerHTML = "";
+  slides.forEach((_, index) => {
+    let dot = document.createElement("button");
+    if (index === 0) dot.classList.add("active");
+    dot.addEventListener("click", () => goToSlide(index));
+    pagination.appendChild(dot);
+  });
+
+  let dots = pagination.querySelectorAll("button");
+
+  function showSlide(index) {
+    // reset semua
+    slides.forEach((s) => s.classList.remove("active"));
+    dots.forEach((d) => d.classList.remove("active"));
+
+    // aktifkan slide & dot
+    slides[index].classList.add("active");
+    dots[index].classList.add("active");
+
+    current = index;
+  }
+
+  function nextSlide() {
+    let next = (current + 1) % total;
+    showSlide(next);
+  }
+
+  function goToSlide(index) {
+    showSlide(index);
+    resetAutoSlide();
+  }
+
+  function startAutoSlide() {
+    autoSlide = setInterval(nextSlide, intervalTime);
+  }
+
+  function resetAutoSlide() {
+    clearInterval(autoSlide);
+    startAutoSlide();
+  }
+
+  // inisialisasi
+  showSlide(0);
+  startAutoSlide();
+});
+
+</script>
+
+
+       <!-- HERO SECTION -->
+<!-- MENGAPA HARUS ISTANA LAUNDRY -->
+<section id="mengapa" class="py-5 text-white" 
+  style="background: linear-gradient(135deg, #9b5de5, #f15bb5);">
+  <div class="container" data-aos="fade-up">
+    <div class="section-title text-center mb-5">
+      <h2>Mengapa Harus <span class="text-warning">Istana Laundry?</span></h2>
+      <p class="text-white">
+        Istana Laundry adalah solusi laundry terpercaya di sekitar Anda dengan layanan profesional dan standar tinggi.
+      </p>
+    </div>
+    <div class="row text-center gy-4">
+      <!-- Mesin Aktif -->
+      <div class="col-lg-3 col-md-6">
+        <div class="p-4 rounded-4 h-100 shadow bg-white text-secondary">
+          <div class="mb-3">
+            <i class="bi bi-gear" style="font-size:2rem; color:#9b5de5;"></i>
+          </div>
+          <h5 class="fw-bold text-dark">10 Mesin Aktif</h5>
+          <p class="mb-0">8 untuk baju, 2 untuk karpet</p>
+        </div>
+      </div>
+
+      <!-- Jam Operasional -->
+      <div class="col-lg-3 col-md-6">
+        <div class="p-4 rounded-4 h-100 shadow bg-white text-secondary">
+          <div class="mb-3">
+            <i class="bi bi-clock-history" style="font-size:2rem; color:#9b5de5;"></i>
+          </div>
+          <h5 class="fw-bold text-dark">14 Jam Operasional</h5>
+          <p class="mb-0">Setiap hari 07.00 - 21.00</p>
+        </div>
+      </div>
+
+      <!-- Notifikasi -->
+      <div class="col-lg-3 col-md-6">
+        <div class="p-4 rounded-4 h-100 shadow bg-white text-secondary">
+          <div class="mb-3">
+            <i class="bi bi-bell" style="font-size:2rem; color:#9b5de5;"></i>
+          </div>
+          <h5 class="fw-bold text-dark">Notifikasi Pesanan</h5>
+          <p class="mb-0">Langsung ke pemilik usaha</p>
+        </div>
+      </div>
+
+      <!-- Pembayaran -->
+      <div class="col-lg-3 col-md-6">
+        <div class="p-4 rounded-4 h-100 shadow bg-white text-secondary">
+          <div class="mb-3">
+            <i class="bi bi-cash-coin" style="font-size:2rem; color:#9b5de5;"></i>
+          </div>
+          <h5 class="fw-bold text-dark">Pembayaran Mudah</h5>
+          <p class="mb-0">QRIS, Transfer, dan Tunai</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<hr style="border: 1px solid #ccc; margin: 0;">
+
+
         <!-- Features Section -->
-        <section id="features" class="features section">
-            <div class="container section-title" data-aos="fade-up">
-                <h2>Layanan Kami</h2>
-                <p>Geser untuk melihat semua layanan!</p>
-            </div>
+<section id="features" class="features section">
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Layanan Kami</h2>
+        <p>Geser untuk melihat semua layanan!</p>
+    </div>
 
-            @php
-                $layanan = App\Models\Layanan::all();
-                $totalLayanan = $layanan->count();
+    @php
+        $layanan = App\Models\Layanan::all();
+        $totalLayanan = $layanan->count();
+    @endphp
+
+    @if ($totalLayanan == 0)
+        <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
+            <p style="font-size: 1.2rem; color: #666;">Layanan belum ditambahkan.</p>
+        </div>
+    @else
+        @php
+            $jumlahAtas = min(20, $totalLayanan); // Ambil 20 atau total jika kurang dari 20
+            $barisAtas = $layanan->take($jumlahAtas);
+            $barisBawah = $layanan->slice($jumlahAtas);
+        @endphp
+
+        <!-- Baris Atas -->
+         
+        <div class="container service-container service-container-top" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-wrapper">
+                @foreach ($barisAtas as $layanan)
+                    <div class="service-card-wrapper">
+                        <div class="card service-card" style="width: 18rem; border-radius: 16px; overflow: hidden;">
+                            <!-- 👇 Gambar statis -->
+                              @php
+                $gambar = match($layanan->nama_layanan) {
+                    'Cuci Kering' => 'cucikering.png',
+                    'Setrika' => 'setrika.png',
+                    'Cuci Lipat' => 'cucilipat.png',
+                    'Testing' => 'testing.png',
+                    default => 'default.png'
+                };
             @endphp
 
-            @if ($totalLayanan == 0)
-                <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
-                    <p style="font-size: 1.2rem; color: #666;">Layanan belum ditambahkan.</p>
-                </div>
-            @else
-                @php
-                    $jumlahAtas = min(20, $totalLayanan); // Ambil 20 atau total jika kurang dari 20
-                    $barisAtas = $layanan->take($jumlahAtas);
-                    $barisBawah = $layanan->slice($jumlahAtas);
-                @endphp
-
-                <!-- Baris Atas -->
-                <div class="container service-container service-container-top" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-wrapper">
-                        @foreach ($barisAtas as $layanan)
-                            <div class="service-card-wrapper">
-                                <div class="card service-card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ $layanan->nama_layanan }}</h5>
-                                        <p class="card-text">{{ $layanan->deskripsi }}</p>
-                                        <button class="btn-see-more">Lihat Selengkapnya</button>
-                                        <p class="card-price">Rp {{ number_format($layanan->harga, 0, ',', '.') }}</p>
-                                        <a href="{{ route('customer.pesanan.create', $layanan->id_layanan) }}"
-                                            class="btn btn-primary">Pesan
-                                            Sekarang</a>
-                                    </div>
-                                </div>
+            <img src="{{ asset('assets/img/' . $gambar) }}"
+                 class="card-img-top"
+                 alt="{{ $layanan->nama_layanan }}"
+                 style="height: 180px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $layanan->nama_layanan }}</h5>
+                                <p class="card-text">{{ $layanan->deskripsi }}</p>
+                                <button class="btn-see-more">Lihat Selengkapnya</button>
+                                <p class="card-price">Rp {{ number_format($layanan->harga, 0, ',', '.') }}</p>
+                                <a href="{{ route('customer.pesanan.create', $layanan->id_layanan) }}"
+                                    class="btn btn-primary w-100">Pesan Sekarang</a>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Baris Bawah -->
-                <div class="container service-container service-container-bottom" data-aos="fade-up" data-aos-delay="100">
-                    <div class="service-wrapper">
-                        @foreach ($barisBawah as $layanan)
-                            <div class="service-card-wrapper">
-                                <div class="card service-card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{ $layanan->nama_layanan }}</h5>
-                                        <p class="card-text">{{ $layanan->deskripsi }}</p>
-                                        <button class="btn-see-more">Lihat Selengkapnya</button>
-                                        <p class="card-price">Rp {{ number_format($layanan->harga, 0, ',', '.') }}</p>
-                                        <a href="{{ route('customer.pesanan.create', $layanan->id_layanan) }}"
-                                            class="btn btn-primary">Pesan
-                                            Sekarang</a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </section>
-        <section id="call-to-action" class="call-to-action section">
-            <div class="row justify-content-center">
-                <div class="col-lg-8 text-center">
-                    <div class="cta-card p-5 rounded-4 position-relative overflow-hidden">
-                        <div class="cta-content position-relative z-index-2">
-                            <h2 class="display-5 mb-3 fw-bold text-white">Promo Spesial Pembelian Pertama!</h2>
-                            <p class="mb-4 fs-5">Nikmati layanan antar jemput gratis untuk semua area yang lebih dari 3
-                                KM!</p>
-                            <a href="{{ route('customer.pesanan.create') }}"
-                                class="btn btn-light btn-lg px-4 py-2 rounded-pill fw-bold">
-                                <i class="bi bi-lightning-charge-fill me-2"></i> Pesan Sekarang
-                            </a>
-                        </div>
-                        <div class="cta-shapes">
-                            <div class="shape shape-1"></div>
-                            <div class="shape shape-2"></div>
-                            <div class="shape shape-3"></div>
                         </div>
                     </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Baris Bawah -->
+        <div class="container service-container service-container-bottom mt-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-wrapper">
+                @foreach ($barisBawah as $layanan)
+                    <div class="service-card-wrapper">
+                        <div class="card service-card" style="width: 18rem; border-radius: 16px; overflow: hidden;">
+                            <!-- 👇 Gambar statis -->
+                            <img src="{{ asset('assets/img/laundry2.jpg') }}" class="card-img-top" alt="Laundry" style="height: 180px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $layanan->nama_layanan }}</h5>
+                                <p class="card-text">{{ $layanan->deskripsi }}</p>
+                                <button class="btn-see-more">Lihat Selengkapnya</button>
+                                <p class="card-price">Rp {{ number_format($layanan->harga, 0, ',', '.') }}</p>
+                                <a href="{{ route('customer.pesanan.create', $layanan->id_layanan) }}"
+                                    class="btn btn-primary w-100">Pesan Sekarang</a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+</section>
+
+<!-- Call to Action Section -->
+<section id="call-to-action" class="call-to-action section">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="cta-card p-5 rounded-4 position-relative overflow-hidden">
+                <div class="cta-content position-relative z-index-2">
+                    <h2 class="display-5 mb-3 fw-bold text-white">Promo Spesial Pembelian Pertama!</h2>
+                    <p class="mb-4 fs-5">Nikmati layanan antar jemput gratis untuk semua area yang lebih dari 3 KM!</p>
+                    <a href="{{ route('customer.pesanan.create') }}"
+                        class="btn btn-light btn-lg px-4 py-2 rounded-pill fw-bold">
+                        <i class="bi bi-lightning-charge-fill me-2"></i> Pesan Sekarang
+                    </a>
+                </div>
+                <div class="cta-shapes">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
+
         <!-- Stats Section -->
         <section id="stats" class="stats section">
             <div class="container" data-aos="fade-up" data-aos-delay="100">
