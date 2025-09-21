@@ -106,7 +106,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Midtrans Snap -->
-<script src="https://app.midtrans.com/snap/snap.js" 
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" 
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 
 <script>

@@ -1,66 +1,112 @@
 @extends('layouts.admin')
 
+@section('styles')
+<link href="{{ asset('assets/css/pembayaran.css') }}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+@endsection
 @section('content')
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="card-title mb-4 text-center">Bayar Pesanan #{{ $transaksi->id_transaksi }}</h2>
-
-                    <!-- Tabel Rincian Layanan -->
-                    <h5 class="mb-3">Rincian Layanan</h5>
-                    <div class="table-responsive mb-4">
-                        <table class="table table-bordered table-sm">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Layanan</th>
-                                    <th class="text-center">Jumlah</th>
-                                    <th class="text-end">Harga</th>
-                                    <th class="text-end">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($transaksi->detailTransaksi as $detail)
-                                    <tr>
-                                        <td>{{ $detail->layanan->nama_layanan }}</td>
-                                        <td class="text-center">{{ $detail->dimensi }}</td>
-                                        <td class="text-end">Rp {{ number_format($detail->layanan->harga, 0, ',', '.') }}</td>
-                                        <td class="text-end">Rp {{ number_format($detail->layanan->harga * $detail->dimensi, 0, ',', '.') }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Total -->
-                    <p class="text-center fs-4 fw-semibold mb-4">
-                        Total: <span class="text-primary">Rp {{ number_format($transaksi->total, 0, ',', '.') }}</span>
-                    </p>
-
-                    <!-- Tombol Bayar -->
-                    <button id="pay-button" class="btn btn-primary btn-lg w-100">Bayar Sekarang</button>
-
-                    <!-- Form Pembatalan -->
-                    <form id="cancel-form" action="{{ route('admin.pesanan.batal', $transaksi->id_transaksi) }}" method="POST" class="mt-3" style="display: none;">
-                        @csrf
-                        @method('DELETE')
-                    </form>
-
-                    <form id="cancel-button-form" class="mt-3">
-                        <button type="submit" class="btn btn-danger w-100">Batal Pesanan</button>
-                    </form>
+<div class="payment-container">
+    <div class="payment-wrapper">
+        <div class="payment-card">
+            <!-- Header Section -->
+            <div class="payment-header">
+                <div class="payment-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
                 </div>
+                <h1 class="payment-title">Pembayaran Pesanan</h1>
+                <p class="payment-subtitle">Order #{{ $transaksi->id_transaksi }}</p>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h2 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+                        <path d="M9 11V6a3 3 0 0 1 6 0v5"/>
+                    </svg>
+                    Rincian Layanan
+                </h2>
+                
+                <div class="order-items">
+                    @foreach ($transaksi->detailTransaksi as $detail)
+                        <div class="order-item">
+                            <div class="item-info">
+                                <h3 class="item-name">{{ $detail->layanan->nama_layanan }}</h3>
+                                <span class="item-quantity">{{ $detail->dimensi }} item</span>
+                            </div>
+                            <div class="item-pricing">
+                                <span class="item-price">Rp {{ number_format($detail->layanan->harga, 0, ',', '.') }}</span>
+                                <span class="item-total">Rp {{ number_format($detail->layanan->harga * $detail->dimensi, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Total Section -->
+                <div class="total-section">
+                    <div class="total-breakdown">
+                        <div class="total-row">
+                            <span>Subtotal</span>
+                            <span>Rp {{ number_format($transaksi->total, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="total-row final-total">
+                            <span>Total Pembayaran</span>
+                            <span>Rp {{ number_format($transaksi->total, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Actions -->
+            <div class="payment-actions">
+                <button id="pay-button" class="btn btn-pay">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    Bayar Sekarang
+                </button>
+                
+                <div class="security-info">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    <span>Pembayaran aman dengan enkripsi SSL</span>
+                </div>
+
+                <!-- Cancel Form (Hidden) -->
+                <form id="cancel-form" action="{{ route('customer.pesanan.batal', $transaksi->id_transaksi) }}" method="POST" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+
+                <!-- Cancel Button Form -->
+                <form id="cancel-button-form" class="cancel-form">
+                    <button type="submit" class="btn btn-cancel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        Batalkan Pesanan
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Midtrans Snap -->
-<script src="https://app.midtrans.com/snap/snap.js" 
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" 
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 
 <script>

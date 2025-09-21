@@ -25,6 +25,9 @@
                     <label for="status" class="form-label text-primary fw-semibold">Status Pesanan</label>
                     <select name="status" id="status" class="form-select form-select-lg rounded-2"
                         style="border-color: pink;" required>
+                        <option value="belum diproses" {{ $transaksi->status == 'belum diproses' ? 'selected' : '' }}>
+                            Belum Diproses
+                        </option>
                         <option value="pesanan diproses" {{ $transaksi->status == 'pesanan diproses' ? 'selected' : '' }}>
                             Pesanan Diproses
                         </option>

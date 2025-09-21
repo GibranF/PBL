@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use App\Models\Layanan;
+use App\Services\FonnteService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+
 
 class PesananAdminController extends Controller
 {
@@ -30,11 +33,6 @@ class PesananAdminController extends Controller
             $q->where('nama_pelanggan', 'like', '%' . $request->search . '%')
               ->orWhere('id_transaksi', 'like', '%' . $request->search . '%');
         });
-    }
-
-    // Filter berdasarkan status
-    if ($request->has('status') && $request->status != '') {
-        $query->where('status', $request->status);
     }
 
     $transaksi = $query->orderBy('tanggal', 'desc')->paginate(10);
@@ -176,18 +174,44 @@ class PesananAdminController extends Controller
         return view('admin.pesanan.edit-status', compact('transaksi'));
     }
 
-    public function updateStatus(Request $request, $id_transaksi)
-    {
-        $request->validate([
-            'status' => 'required|in:pesanan diproses,pesanan selesai',
-        ]);
 
-        $transaksi = Transaksi::findOrFail($id_transaksi);
-        $transaksi->status = $request->status;
-        $transaksi->save();
+public function updateStatus(Request $request, $id_transaksi, \App\Services\FonnteService $fonnte)
+{
+    $request->validate([
+        'status' => 'required|in:belum diproses, pesanan diproses,pesanan selesai',
+    ]);
 
-        return redirect()->route('admin.pesanan.index')->with('success', 'Status pesanan berhasil diperbarui!');
+    $transaksi = \App\Models\Transaksi::with('user')->findOrFail($id_transaksi);
+    $transaksi->status = $request->status;
+    $transaksi->save();
+
+    if ($transaksi->status === 'pesanan selesai') {
+        $customer = $transaksi->user;
+
+        // Nomor HP diambil dari user, kalau kosong fallback ke transaksi
+        $phone = $customer->nomor_hp ?? $transaksi->nomor_hp ?? null;
+
+        if ($phone) {
+            $message = "Halo {$customer->name}, pesanan Anda dengan ID {$transaksi->id_transaksi} telah SELESAI ✅. Terima kasih telah menggunakan layanan kami 🙏";
+
+            // Panggil Service Fonnte
+            $result = $fonnte->sendMessage($phone, $message);
+
+            // Debug log hasil response dari Fonnte
+            Log::info('Fonnte updateStatus result', [
+                'phone'    => $phone,
+                'response' => $result,
+            ]);
+        } else {
+            Log::warning('Nomor HP tidak ditemukan untuk transaksi', [
+                'id_transaksi' => $transaksi->id_transaksi,
+            ]);
+        }
     }
+
+    return redirect()->route('admin.pesanan.index')
+        ->with('success', 'Status pesanan berhasil diperbarui!');
+}
 
 
 }

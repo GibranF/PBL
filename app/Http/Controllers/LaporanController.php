@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {

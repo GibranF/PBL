@@ -4,6 +4,7 @@
     <div class="container-fluid py-4">
         <div class="card component-page">
             <div class="card-body">
+                <!-- Header -->
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
                     <div class="mb-3 mb-md-0">
                         <h2 class="mb-1">Daftar Layanan</h2>
@@ -19,81 +20,44 @@
                     </div>
                 </div>
 
-                <!-- Search and Filter -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" class="form-control" placeholder="Cari layanan...">
-                            <button class="btn btn-outline-secondary" type="button">Cari</button>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mt-2 mt-md-0">
-                        <div class="d-flex justify-content-md-end">
-                            <select class="form-select me-2" style="max-width: 200px;">
-                                <option selected>Filter Kategori</option>
-                                <option>Semua</option>
-                                <option>Populer</option>
-                                <option>Terbaru</option>
-                            </select>
-                            <button class="btn btn-outline-secondary">
-                                <i class="fas fa-filter me-1"></i> Filter
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabel Layanan -->
+                <!-- Table -->
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle" style="min-width: 800px">
-                        <thead class="table-light">
+                    <table class="table table-hover table-bordered align-middle text-center" style="min-width: 800px">
+                        <thead class="table-light text-center">
                             <tr>
-                                <th style="width: 5%">ID</th>
-                                <th style="width: 25%">Nama Layanan</th>
-                                <th style="width: 15%">Harga</th>
-                                <th style="width: 35%">Deskripsi</th>
-                                <th style="width: 20%">Aksi</th>
+                                <th>ID</th>
+                                <th>Nama Layanan</th>
+                                <th>Harga</th>
+                                <th>Deskripsi</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($layanan as $layananAdmin)
+                            @foreach ($layanan as $layananAdmin)
                                 <tr>
                                     <td class="fw-bold">{{ $layananAdmin->id_layanan }}</td>
+                                    <td>{{ $layananAdmin->nama_layanan }}</td>
+                                    <td>Rp {{ number_format($layananAdmin->harga, 0, ',', '.') }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="bg-light rounded p-2" style="width: 40px; height: 40px;">
-                                                    <i
-                                                        class="fas fa-concierge-bell text-primary d-flex justify-content-center align-items-center h-100"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">{{ $layananAdmin->nama_layanan }}</h6>
-                                                <small class="text-muted">Kategori: Umum</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-light text-dark fs-6">Rp
-                                            {{ number_format($layananAdmin->harga, 0, ',', '.') }}</span>
-                                    </td>
-                                    <td>
-                                        <p class="mb-0 text-truncate" style="max-width: 300px;">{{ $layananAdmin->deskripsi }}
+                                        <p class="mb-0 deskripsi-text text-truncate"
+                                            style="max-width: 600px; cursor: pointer; overflow: hidden; white-space: nowrap;"
+                                            title="Klik untuk melihat selengkapnya">
+                                            {{ $layananAdmin->deskripsi }}
                                         </p>
                                     </td>
-                                    <td class="text-end">
-                                        <div class="btn-group" role="group">
-                                            <a href="" class="btn btn-sm btn-outline-warning px-3">
+
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="" class="btn btn-sm btn-outline-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form action="{{ route('admin.layanan.destroy', $layananAdmin->id_layanan) }}"
-                                                method="POST" onsubmit="return confirm('Yakin ingin mengarsipkan layanan ini?')"
+                                                method="POST"
+                                                onsubmit="return confirm('Yakin ingin mengarsipkan layanan ini?')"
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger px-3">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -104,6 +68,8 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
                 <div class="row mt-4">
                     <div class="col-md-6">
                         <p class="mb-0 text-muted">
@@ -112,12 +78,34 @@
                         </p>
                     </div>
                     <div class="col-md-6">
-                        <nav class="float-md-end" aria-label="Pagination">
-                            {{ $layanan->links('pagination::bootstrap-5') }}
-                        </nav>
+                        {{ $layanan->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".deskripsi-text").forEach(function(el) {
+                el.addEventListener("click", function() {
+                    if (el.classList.contains("expanded")) {
+                        // kembali truncate
+                        el.classList.remove("expanded");
+                        el.classList.add("text-truncate");
+                        el.style.whiteSpace = "nowrap";
+                        el.style.overflow = "hidden";
+                    } else {
+                        // tampilkan full
+                        el.classList.add("expanded");
+                        el.classList.remove("text-truncate");
+                        el.style.whiteSpace = "normal";
+                        el.style.overflow = "visible";
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

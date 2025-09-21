@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="{{ asset('temp/dist')}}/assets/css/style.css" id="main-style-link" >
 <link rel="stylesheet" href="{{ asset('temp/dist')}}/assets/css/style-preset.css" >
 
-
+@yield('styles')
 </head>
 <!-- [Head] end -->
 <!-- [Body] Start -->
@@ -235,7 +235,7 @@
   <script src="{{ asset('temp/dist')}}/assets/js/pcoded.js"></script>
   <script src="{{ asset('temp/dist')}}/assets/js/plugins/feather.min.js"></script>
 
-  
+  @stack('scripts')
   
   
   
