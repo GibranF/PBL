@@ -41,12 +41,11 @@
                         <div class="card shadow-sm border-0 text-center p-4 h-100">
                             <div class="position-relative d-inline-block mx-auto mb-3">
                                 {{-- Gambar profil --}}
+
                                 <img id="profilePreview"
                                     src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-foto.png') }}"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/default-foto.png') }}';"
                                     alt="Foto Profil" class="rounded-circle shadow"
-                                    style="width: 200px; height: 200px; object-fit: cover;">
-
+                                    style="width: 200px; height: 200px; object-fit: cover;">"
 
                                 {{-- Tombol edit foto --}}
                                 <button type="button"
