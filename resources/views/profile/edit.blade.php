@@ -45,7 +45,7 @@
                                 <img id="profilePreview"
                                     src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/default-foto.png') }}"
                                     alt="Foto Profil" class="rounded-circle shadow"
-                                    style="width: 200px; height: 200px; object-fit: cover;">"
+                                    style="width: 200px; height: 200px; object-fit: cover;">
 
                                 {{-- Tombol edit foto --}}
                                 <button type="button"

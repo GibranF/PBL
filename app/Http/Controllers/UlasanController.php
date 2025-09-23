@@ -26,10 +26,12 @@ class UlasanController extends Controller
                 'tanggal' => now(),
             ]);
 
-            return redirect()->back()->with('success', 'Ulasan berhasil dikirim.');
+            return redirect()->to(url()->previous().'#komentar')
+                ->with('success', 'Ulasan berhasil dikirim.');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan ulasan:', ['error' => $e->getMessage()]);
-            return redirect()->back()->withErrors(['error' => 'Gagal menyimpan ulasan.']);
+            return redirect()->to(url()->previous().'#komentar')
+                ->withErrors(['error' => 'Gagal menyimpan ulasan.']);
         }
     }
 
@@ -39,10 +41,12 @@ class UlasanController extends Controller
 
         if ($ulasan->id_user === Auth::id()) {
             $ulasan->delete();
-            return back()->with('success', 'Ulasan Anda dihapus.');
+            return redirect()->to(url()->previous().'#komentar')
+                ->with('success', 'Ulasan Anda dihapus.');
         }
 
-        return back()->withErrors('Tidak diizinkan.');
+        return redirect()->to(url()->previous().'#komentar')
+            ->withErrors('Tidak diizinkan.');
     }
 
     public function destroyByAdmin($id)
@@ -51,9 +55,11 @@ class UlasanController extends Controller
 
         if (Auth::user()->usertype === 'admin') {
             $ulasan->delete();
-            return back()->with('success', 'Ulasan dihapus oleh admin.');
+            return redirect()->to(url()->previous().'#komentar')
+                ->with('success', 'Ulasan dihapus oleh admin.');
         }
     }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -63,9 +69,9 @@ class UlasanController extends Controller
 
         $ulasan = Ulasan::findOrFail($id);
 
-        // Pastikan pengguna yang mengupdate adalah pemilik ulasan
         if ($ulasan->id_user !== Auth::id()) {
-            return redirect()->back()->withErrors(['error' => 'Kamu tidak diizinkan mengedit ulasan ini.']);
+            return redirect()->to(url()->previous().'#komentar')
+                ->withErrors(['error' => 'Kamu tidak diizinkan mengedit ulasan ini.']);
         }
 
         $ulasan->update([
@@ -73,6 +79,7 @@ class UlasanController extends Controller
             'rating' => $request->rating,
         ]);
 
-        return redirect()->back()->with('success', 'Ulasan berhasil diperbarui.');
+        return redirect()->to(url()->previous().'#komentar')
+            ->with('success', 'Ulasan berhasil diperbarui.');
     }
 }
