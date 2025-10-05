@@ -16,22 +16,13 @@ class UserSeeder extends Seeder
     public function run()
     {
         // Membuat user dummy untuk customer123
-        User::create([
-            'name' => 'customer123',
-            'email' => 'customer123@example.com',
-            'user_type' => 'customer', 
-            'alamat' => 'Alamat Customer',
-            'nomor_hp' => '08123456789',
-            'password' => Hash::make('password123'), 
-        ]);
-
         // Membuat user dummy untuk admin123
         User::create([
-            'name' => 'admin123',
-            'email' => 'admin123@example.com',
-            'user_type' => 'admin', 
+            'name' => 'edwink',
+            'email' => 'edwin@gmail.com',
+            'usertype' => 'admin', 
             'alamat' => 'Alamat Admin',
-            'nomor_hp' => '08987654321',
+            'nomor_hp' => '085235589635',
             'password' => Hash::make('password123'), 
         ]);
     }

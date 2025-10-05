@@ -75,7 +75,7 @@
                                 <tr>
                                     <td class="fw-bold">{{ $trans->id_transaksi }}</td>
                                     <td>{{ $trans->tanggal->format('Y-m-d H:i') }}</td>
-                                    <td>{{ $trans->user->usertype === 'admin' ? $trans->user->name : '' }}</td>
+                                    <td>{{ $trans->nama_kasir ?? ($trans->user && $trans->user->usertype === 'admin' ? $trans->user->name : '') }}</td>
                                     <td>{{ $trans->nama_pelanggan }}</td>
                                     <td>
                                         @php $subtotal = $trans->detailTransaksi->sum('subtotal'); @endphp
@@ -146,11 +146,6 @@
                                                 {{-- 🔹 Tampilkan Bayar hanya kalau belum dibayar --}}
                                                 @if ($trans->status_pembayaran == 'belum dibayar')
                                                     @if (empty($trans->metode_pembayaran))
-                                                        {{-- ❌ Batal tanpa metode --}}
-                                                        <button class="btn btn-sm btn-outline-danger px-3 btn-batal"
-                                                            data-url="{{ route('admin.pesanan.batal', $trans->id_transaksi) }}">
-                                                            <i class="fas fa-times-circle"></i>
-                                                        </button>
                                                     @elseif ($trans->metode_pembayaran == 'cash')
                                                         {{-- 💵 Bayar Cash --}}
                                                         <button class="btn btn-sm btn-outline-success px-3 btn-bayar-cash"

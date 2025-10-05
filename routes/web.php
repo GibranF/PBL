@@ -30,6 +30,7 @@ Route::middleware(['auth', 'userMiddleware'])
             ->name('customer.pesanan.create');
         Route::post('pesanan', [PesananCustomerController::class, 'store'])
             ->name('customer.pesanan.store');
+        Route::get('pesanan/{id_transaksi}', [PesananCustomerController::class, 'show'])->name('customer.pesanan.show');
         Route::delete('pesanan/{id_transaksi}/batal', [PembayaranController::class, 'batalPesanan'])->name('customer.pesanan.batal');
         Route::get('pesanan', [PesananCustomerController::class, 'index'])->name('customer.pesanan.index');
         Route::get('pembayaran/{id_transaksi}/create', [PembayaranController::class, 'create'])->name('customer.pembayaran.create');

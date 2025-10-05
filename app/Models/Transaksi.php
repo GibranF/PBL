@@ -21,7 +21,7 @@ protected $casts = [
     ];
 
 protected $fillable = [
-    'id_transaksi', 'id_user', 'nama_pelanggan', 'alamat', 'nomor_hp',
+    'id_transaksi', 'id_user', 'nama_pelanggan', 'nama_kasir', 'alamat', 'nomor_hp',
     'status', 'tanggal', 'biaya_antar', 'jarak_km', 'total',
     'tanggal_pembayaran', 'status_pembayaran', 'metode_pembayaran', 'snap_token'
 ];

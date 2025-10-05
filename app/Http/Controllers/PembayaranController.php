@@ -21,13 +21,13 @@ class PembayaranController extends Controller
     public function __construct()
     {
         // Konfigurasi Midtrans
-        MidtransConfig::$serverKey    = config('midtrans.server_key');
+        MidtransConfig::$serverKey = config('midtrans.server_key');
         MidtransConfig::$isProduction = config('midtrans.is_production');
-        MidtransConfig::$isSanitized  = config('midtrans.is_sanitized');
-        MidtransConfig::$is3ds        = config('midtrans.is_3ds');
+        MidtransConfig::$isSanitized = config('midtrans.is_sanitized');
+        MidtransConfig::$is3ds = config('midtrans.is_3ds');
     }
 
-     
+
     public function create($id_transaksi)
     {
         $transaksi = Transaksi::findOrFail($id_transaksi);
@@ -44,7 +44,7 @@ class PembayaranController extends Controller
                 $status = Transaction::status($transaksi->id_transaksi);
 
                 if ($status->transaction_status === 'pending') {
-                    $snapToken = $transaksi->snap_token; 
+                    $snapToken = $transaksi->snap_token;
                 }
             } catch (\Exception $e) {
             }
@@ -93,17 +93,25 @@ class PembayaranController extends Controller
                 return response()->json(['error' => 'Transaksi ini sudah dibayar'], 400);
             }
 
-            // Update transaksi
-            $transaksi->update([
-                'status_pembayaran'   => 'sudah dibayar',
-                'tanggal_pembayaran'  => Carbon::now(),
-                'metode_pembayaran'   => 'Transfer',
-                'snap_token'          => $request->snap_token ?? null,
-            ]);
+            // Update data transaksi dasar
+            $updateData = [
+                'status_pembayaran' => 'sudah dibayar',
+                'tanggal_pembayaran' => Carbon::now(),
+                'metode_pembayaran' => 'Transfer',
+                'snap_token' => $request->snap_token ?? null,
+            ];
 
+            // Jika yang login adalah admin, isi nama_kasir (jika masih kosong)
+            if (Auth::check() && Auth::user()->usertype === 'admin') {
+                if (empty($transaksi->nama_kasir)) {
+                    $updateData['nama_kasir'] = Auth::user()->name;
+                }
+            }
+
+            $transaksi->update($updateData);
             $transaksi->refresh();
 
-            // --- Kirim WA ke admin hanya kalau yang bayar customer ---
+            // --- Kirim WA ke admin hanya kalau yang bayar adalah customer ---
             if (Auth::user()->usertype === 'customer') {
                 $pesan = "📢 *Pesanan Baru Dibayar!*\n\n"
                     . "🧑 Nama: {$transaksi->nama_pelanggan}\n"
@@ -112,8 +120,10 @@ class PembayaranController extends Controller
                     . "💰 Total: Rp " . number_format($transaksi->total, 0, ',', '.') . "\n"
                     . "✅ Status: Sudah Dibayar";
 
-                // Ambil semua nomor admin
-                $adminNumbers = User::where('usertype', 'admin')->pluck('nomor_hp');
+                // Kirim ke semua admin yang punya nomor HP
+                $adminNumbers = User::where('usertype', 'admin')
+                    ->whereNotNull('nomor_hp')
+                    ->pluck('nomor_hp');
 
                 foreach ($adminNumbers as $adminPhone) {
                     $fonnte->sendMessage($adminPhone, $pesan);
@@ -124,8 +134,10 @@ class PembayaranController extends Controller
                 'success' => true,
                 'message' => 'Pembayaran berhasil dicatat.',
             ], 200);
+
         } catch (\Exception $e) {
             Log::error('Error in PembayaranController@store: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Gagal menyimpan pembayaran: ' . $e->getMessage(),
@@ -160,53 +172,67 @@ class PembayaranController extends Controller
             ], 500);
         }
     }
-
     public function bayarCash($id_transaksi)
-{
-    try {
-        $transaksi = Transaksi::findOrFail($id_transaksi);
+    {
+        try {
+            $transaksi = Transaksi::findOrFail($id_transaksi);
 
-        $transaksi->update([
-            'status_pembayaran'  => 'sudah dibayar',
-            'tanggal_pembayaran' => Carbon::now(),
-            'metode_pembayaran'  => 'cash',
-        ]);
+            $dataUpdate = [
+                'status_pembayaran' => 'sudah dibayar',
+                'tanggal_pembayaran' => Carbon::now(),
+                'metode_pembayaran' => 'cash',
+            ];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran cash berhasil diproses.'
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal memproses pembayaran cash: ' . $e->getMessage()
-        ], 500);
+            // Isi nama kasir hanya jika masih kosong
+            if (empty($transaksi->nama_kasir)) {
+                $dataUpdate['nama_kasir'] = auth()->user()->name ?? null;
+            }
+
+            $transaksi->update($dataUpdate);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran cash berhasil diproses.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses pembayaran cash: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     public function setMetodeDanBayar(Request $request, $id_transaksi)
-{
-    try {
-        $transaksi = Transaksi::findOrFail($id_transaksi);
+    {
+        try {
+            $transaksi = Transaksi::findOrFail($id_transaksi);
 
-        $transaksi->update([
-            'metode_pembayaran'  => $request->metode_pembayaran,
-            'status_pembayaran'  => 'sudah dibayar',
-            'tanggal_pembayaran' => Carbon::now(),
-        ]);
+            $dataUpdate = [
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'status_pembayaran' => 'sudah dibayar',
+                'tanggal_pembayaran' => Carbon::now(),
+            ];
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Metode pembayaran berhasil disimpan dan transaksi ditandai sudah dibayar.'
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-        ], 500);
+            // Isi nama kasir hanya jika masih kosong
+            if (empty($transaksi->nama_kasir)) {
+                $dataUpdate['nama_kasir'] = auth()->user()->name ?? null;
+            }
+
+            $transaksi->update($dataUpdate);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Metode pembayaran berhasil disimpan dan transaksi ditandai sudah dibayar.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
 
 
     /**
@@ -215,7 +241,7 @@ class PembayaranController extends Controller
     private function generateIdTransaksi()
     {
         $prefix = 'TRX';
-        $date   = now()->format('YmdHis');
+        $date = now()->format('YmdHis');
         $random = strtoupper(Str::random(4));
 
         return $prefix . $date . $random;
