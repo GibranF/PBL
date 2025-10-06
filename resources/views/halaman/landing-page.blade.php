@@ -81,9 +81,6 @@
   </div>
 </section>
 
-
-
-<!-- JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   let slides = document.querySelectorAll(".item");
@@ -107,11 +104,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let dots = pagination.querySelectorAll("button");
 
   function showSlide(index) {
-    // reset semua
     slides.forEach((s) => s.classList.remove("active"));
     dots.forEach((d) => d.classList.remove("active"));
 
-    // aktifkan slide & dot
     slides[index].classList.add("active");
     dots[index].classList.add("active");
 
@@ -137,13 +132,62 @@ document.addEventListener("DOMContentLoaded", function () {
     startAutoSlide();
   }
 
-  // inisialisasi
+  // ---- Swipe / Drag Feature ----
+  let startX = 0;
+  let isDragging = false;
+
+  // Mouse events
+  slideContainer.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.pageX;
+  });
+
+  slideContainer.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    let diff = e.pageX - startX;
+    if (diff > 50) { // geser ke kanan
+      prevSlide();
+      isDragging = false;
+    } else if (diff < -50) { // geser ke kiri
+      nextSlide();
+      isDragging = false;
+    }
+  });
+
+  slideContainer.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
+  slideContainer.addEventListener("mouseleave", () => {
+    isDragging = false;
+  });
+
+  // Touch events (mobile)
+  slideContainer.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  });
+
+  slideContainer.addEventListener("touchmove", (e) => {
+    let diff = e.touches[0].clientX - startX;
+    if (diff > 50) {
+      prevSlide();
+      startX = e.touches[0].clientX; // reset supaya swipe bisa berulang
+    } else if (diff < -50) {
+      nextSlide();
+      startX = e.touches[0].clientX;
+    }
+  });
+
+  function prevSlide() {
+    let prev = (current - 1 + total) % total;
+    showSlide(prev);
+    resetAutoSlide();
+  }
+
+  // ---- Inisialisasi ----
   showSlide(0);
   startAutoSlide();
 });
-
 </script>
-
 
        <!-- HERO SECTION -->
 <!-- MENGAPA HARUS ISTANA LAUNDRY -->
@@ -236,13 +280,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 @foreach ($barisAtas as $layanan)
                     <div class="service-card-wrapper">
                         <div class="card service-card" style="width: 18rem; border-radius: 16px; overflow: hidden;">
-                            <!-- 👇 Gambar statis -->
+                            <!--  Gambar statis -->
                               @php
                 $gambar = match($layanan->nama_layanan) {
                     'Cuci Kering' => 'cucikering.png',
                     'Setrika' => 'setrika.png',
                     'Cuci Lipat' => 'cucilipat.png',
-                    'Testing' => 'testing.png',
+                    'Testing' => 'cucilipat.png',
                     default => 'default.png'
                 };
             @endphp
@@ -254,7 +298,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             <div class="card-body">
                                 <h5 class="card-title">{{ $layanan->nama_layanan }}</h5>
                                 <p class="card-text">{{ $layanan->deskripsi }}</p>
-                                <button class="btn-see-more">Lihat Selengkapnya</button>
                                 <p class="card-price">Rp {{ number_format($layanan->harga, 0, ',', '.') }}</p>
                                 <a href="{{ route('customer.pesanan.create', $layanan->id_layanan) }}"
                                     class="btn btn-primary w-100">Pesan Sekarang</a>
@@ -289,19 +332,40 @@ document.addEventListener("DOMContentLoaded", function () {
     @endif
 </section>
 
-<!-- Call to Action Section -->
-<section id="call-to-action" class="call-to-action section">
+<!-- Proses Kerja Section -->
+<section id="proses-kerja" class="call-to-action section">
     <div class="row justify-content-center">
-        <div class="col-lg-8 text-center">
+        <div class="col-lg-10 text-center">
             <div class="cta-card p-5 rounded-4 position-relative overflow-hidden">
                 <div class="cta-content position-relative z-index-2">
-                    <h2 class="display-5 mb-3 fw-bold text-white">Promo Spesial Pembelian Pertama!</h2>
-                    <p class="mb-4 fs-5">Nikmati layanan antar jemput gratis untuk semua area yang lebih dari 3 KM!</p>
+                    <h2 class="display-5 mb-3 fw-bold text-white">Bagaimana Istana Laundry Bekerja</h2>
+                    <p class="mb-4 fs-5">Nikmati layanan cepat, profesional, dan nyaman dalam beberapa langkah mudah!</p>
+
+                    <div class="row text-start mb-4">
+                        <div class="col-md-3 mb-3">
+                            <h5 class="fw-bold text-white"><i class="bi bi-bag-fill me-2"></i>1. Masukkan Pakaian</h5>
+                            <p class="text-white">Serahkan pakaian kotor Anda ke kami, baik secara langsung atau lewat layanan antar jemput.</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h5 class="fw-bold text-white"><i class="bi bi-brush-fill me-2"></i>2. Proses Pencucian</h5>
+                            <p class="text-white">Pakaian dicuci dengan deterjen ramah lingkungan dan staf profesional untuk hasil bersih maksimal.</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h5 class="fw-bold text-white"><i class="bi bi-clock-fill me-2"></i>3. Setrika & Periksa</h5>
+                            <p class="text-white">Setiap pakaian diperiksa dan disetrika agar rapi dan siap pakai.</p>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <h5 class="fw-bold text-white"><i class="bi bi-truck me-2"></i>4. Pengantaran / Ambil</h5>
+                            <p class="text-white">Pakaian siap diambil atau kami antar kembali ke alamat Anda dengan aman dan tepat waktu.</p>
+                        </div>
+                    </div>
+
                     <a href="{{ route('customer.pesanan.create') }}"
                         class="btn btn-light btn-lg px-4 py-2 rounded-pill fw-bold">
                         <i class="bi bi-lightning-charge-fill me-2"></i> Pesan Sekarang
                     </a>
                 </div>
+
                 <div class="cta-shapes">
                     <div class="shape shape-1"></div>
                     <div class="shape shape-2"></div>
@@ -312,41 +376,169 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 </section>
 
-        <!-- Stats Section -->
-        <section id="stats" class="stats section">
-            <div class="container" data-aos="fade-up" data-aos-delay="100">
-                <div class="row gy-4">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stats-item text-center w-100 h-100">
-                            <span data-purecounter-start="0" data-purecounter-end="1250" data-purecounter-duration="1"
-                                class="purecounter"></span>
-                            <p>Pelanggan Puas</p>
+
+<!-- FAQ Section -->
+<section id="faq" class="faq section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="section-title text-center mb-5">
+            <h2>FAQ Istana Laundry</h2>
+            <p>Pertanyaan yang sering diajukan oleh pelanggan</p>
+        </div>
+
+        <div class="row">
+            <!-- Kiri: FAQ 1-5 -->
+            <div class="col-lg-6">
+                <div class="accordion" id="faqAccordionLeft">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                                1. Apa saja layanan yang disediakan Istana Laundry?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body">
+                                Kami menyediakan layanan cuci pakaian harian, cuci sepatu, setrika, dan layanan kiloan.
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stats-item text-center w-100 h-100">
-                            <span data-purecounter-start="0" data-purecounter-end="3400" data-purecounter-duration="1"
-                                class="purecounter"></span>
-                            <p>Pakaian Dicuci</p>
+
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                                2. Berapa lama proses pencucian pakaian?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body">
+                                Pakaian biasanya selesai dalam 24 jam, tergantung jenis layanan dan jumlah pakaian.
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stats-item text-center w-100 h-100">
-                            <span data-purecounter-start="0" data-purecounter-end="120" data-purecounter-duration="1"
-                                class="purecounter"></span>
-                            <p>Jam Operasional / Minggu</p>
+
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                                3. Apakah Istana Laundry menerima layanan antar-jemput?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body">
+                                Ya, kami menyediakan layanan antar-jemput untuk area tertentu. Silakan hubungi kami untuk detailnya.
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="stats-item text-center w-100 h-100">
-                            <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1"
-                                class="purecounter"></span>
-                            <p>Staf Profesional</p>
+
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                                4. Bagaimana cara melakukan pembayaran?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body">
+                                Pembayaran dapat dilakukan secara tunai di tempat atau melalui transfer bank/e-wallet.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 5 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+                                5. Apakah pakaian saya aman di Istana Laundry?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordionLeft">
+                            <div class="accordion-body">
+                                Kami menjaga keamanan pakaian Anda dengan sistem penomoran dan staf profesional.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Kanan: FAQ 6-10 -->
+            <div class="col-lg-6">
+                <div class="accordion" id="faqAccordionRight">
+                    <!-- FAQ 6 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading6">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6" aria-expanded="false" aria-controls="faqCollapse6">
+                                6. Apakah Istana Laundry menggunakan deterjen ramah lingkungan?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse6" class="accordion-collapse collapse" aria-labelledby="faqHeading6" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body">
+                                Ya, kami menggunakan deterjen dan produk ramah lingkungan yang aman untuk pakaian dan kulit.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 7 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading7">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse7" aria-expanded="false" aria-controls="faqCollapse7">
+                                7. Bagaimana jika pakaian hilang atau rusak?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse7" class="accordion-collapse collapse" aria-labelledby="faqHeading7" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body">
+                                Kami bertanggung jawab penuh dan menyediakan kompensasi sesuai kebijakan jika terjadi kehilangan atau kerusakan.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 8 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading8">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse8" aria-expanded="false" aria-controls="faqCollapse8">
+                                8. Apakah ada promo atau diskon untuk pelanggan tetap?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse8" class="accordion-collapse collapse" aria-labelledby="faqHeading8" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body">
+                                Ya, kami memiliki promo khusus untuk pelanggan tetap dan musiman. Silakan cek media sosial kami untuk info terbaru.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 9 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading9">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse9" aria-expanded="false" aria-controls="faqCollapse9">
+                                9. Apakah bisa mencuci pakaian dalam jumlah besar?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse9" class="accordion-collapse collapse" aria-labelledby="faqHeading9" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body">
+                                Bisa, kami melayani cuci kiloan dan pesanan dalam jumlah besar sesuai kebutuhan pelanggan.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 10 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading10">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse10" aria-expanded="false" aria-controls="faqCollapse10">
+                                10. Bagaimana cara menghubungi Istana Laundry?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse10" class="accordion-collapse collapse" aria-labelledby="faqHeading10" data-bs-parent="#faqAccordionRight">
+                            <div class="accordion-body">
+                                Anda bisa menghubungi kami melalui telepon, WhatsApp, atau kunjungi langsung cabang terdekat.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
         <!-- Contact Section -->
         <section id="contact" class="contact section light-background">
@@ -410,86 +602,281 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         </section>
 
-        <!-- Komentar Section -->
-        <section id="komentar" style="background-color: #fff; padding: 40px 0;">
-            <div class="container" style="max-width: 700px;">
-                <h3 style="text-align: center; color: #800080;">Rating dan Ulasan</h3>
-                <p style="text-align: center; margin-bottom: 30px;">Tulis komentar dan rating Anda</p>
+<!-- Komentar Section -->
+<section id="komentar" style="background-color: #fff; padding: 40px 0;">
+    <div class="container" style="max-width: 800px;">
+        
+        <!-- Judul -->
+        <h3 class="text-center" style="color: #800080;">Rating dan Ulasan</h3>
+        <p class="text-center mb-4">Tulis komentar dan rating Anda</p>
 
-                {{-- Form Ulasan Baru --}}
-                <form action="{{ route('ulasan.store') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="komentar" class="form-label">Komentar</label>
-                        <textarea name="komentar" id="komentar" class="form-control" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="rating" class="form-label">Rating</label>
-                        <select name="rating" id="rating" class="form-select" required>
-                            <option value="5">★★★★★</option>
-                            <option value="4">★★★★</option>
-                            <option value="3">★★★</option>
-                            <option value="2">★★</option>
-                            <option value="1">★</option>
-                        </select>
-                    </div>
-
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary" style="border-radius: 10px;">Kirim</button>
-                    </div>
-                </form>
-
-                {{-- Daftar Ulasan --}}
-                <section style="padding: 40px 0;">
-                    <h4>Ulasan Terbaru</h4>
-                    @foreach (\App\Models\Ulasan::latest()->take(5)->get() as $ulasan)
-                        <div class="border p-3 mb-3 rounded">
-                            <strong>{{ $ulasan->user->name ?? 'User tidak ditemukan' }}</strong><br>
-                            <span style="color: gold;">{{ str_repeat('★', $ulasan->rating) }}</span><br>
-                            <p>{{ $ulasan->pesan }}</p>
-
-                            {{-- Tombol untuk pemilik ulasan (edit & hapus) --}}
-                            @if (Auth::check() && $ulasan->id_user == Auth::id())
-                                {{-- Form Update --}}
-                                <form action="{{ route('ulasan.update', $ulasan->id_ulasan) }}" method="POST" class="mb-2 mt-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <textarea name="komentar" class="form-control" required>{{ $ulasan->pesan }}</textarea>
-                                    <select name="rating" class="form-select mt-2" required>
-                                        @for ($i = 5; $i >= 1; $i--)
-                                            <option value="{{ $i }}" {{ $ulasan->rating == $i ? 'selected' : '' }}>
-                                                {{ str_repeat('★', $i) }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                    <button type="submit" class="btn btn-warning btn-sm mt-2">Update</button>
-                                </form>
-
-                                {{-- Tombol Hapus --}}
-                                <form action="{{ route('ulasan.destroy', ['id' => $ulasan->id_ulasan]) }}" method="POST">
-
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm mt-1">Hapus</button>
-                                </form>
-                            @endif
-
-                            {{-- Tombol hapus khusus admin (tidak bisa edit) --}}
-                            @if (Auth::check() && Auth::user()->usertype === 'admin' && $ulasan->id_user !== Auth::id())
-                                <form action="{{ route('ulasan.destroy', $ulasan->id_ulasan) }}" method="POST"
-                                    onsubmit="return confirm('Admin, yakin ingin menghapus ulasan ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm mt-1">Hapus (Admin)</button>
-                                </form>
-                            @endif
-
-                        </div>
-                    @endforeach
-                </section>
+        <!-- Form Ulasan Baru -->
+        <form action="{{ route('ulasan.store') }}" method="POST">
+            @csrf
+            <div class="mb-3">
+                <label for="komentar" class="form-label">Komentar</label>
+                <textarea name="komentar" id="komentar" class="form-control" required></textarea>
             </div>
-        </section>
+
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <select name="rating" id="rating" class="form-select" required>
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★</option>
+                    <option value="3">★★★</option>
+                    <option value="2">★★</option>
+                    <option value="1">★</option>
+                </select>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary rounded">Kirim</button>
+            </div>
+        </form>
+@php
+    // Ambil semua ulasan
+    $allUlasan = \App\Models\Ulasan::all();
+    $totalUlasan = $allUlasan->count();
+    $totalRating = $allUlasan->sum('rating');
+    $rataRata = $totalUlasan > 0 ? round($totalRating / $totalUlasan, 1) : 0;
+@endphp
+
+<!-- Rata-rata Rating -->
+<div class="mb-4 text-center">
+    <h4 class="mb-0">Rating Keseluruhan</h4>
+    <div style="font-size: 22px; color: gold;">
+        {{ str_repeat('★', floor($rataRata)) }}{{ str_repeat('☆', 5 - floor($rataRata)) }}
+        <span class="text-muted" style="font-size: 18px;">{{ $rataRata }}/5</span>
+    </div>
+    <small class="text-muted">Berdasarkan {{ $totalUlasan }} ulasan</small>
+</div>
+
+       <!-- Filter Ulasan -->
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h4 class="mb-4">Ulasan Terbaru</h4>  <!-- tambah mb-0 -->
+    <form method="GET" action="#komentar" class="d-flex">
+        <select name="filter_rating" class="form-select" onchange="this.form.submit()" style="margin-left: 15px;">  <!-- tambah margin-left -->
+            <option value="">Rating</option>
+            <option value="5" {{ request('filter_rating') == 5 ? 'selected' : '' }}>★★★★★</option>
+            <option value="4" {{ request('filter_rating') == 4 ? 'selected' : '' }}>★★★★</option>
+            <option value="3" {{ request('filter_rating') == 3 ? 'selected' : '' }}>★★★</option>
+            <option value="2" {{ request('filter_rating') == 2 ? 'selected' : '' }}>★★</option>
+            <option value="1" {{ request('filter_rating') == 1 ? 'selected' : '' }}>★</option>
+        </select>
+    </form>
+</div>
+
+        <!-- Query Ulasan -->
+        @php
+            $query = \App\Models\Ulasan::latest();
+            if (request('filter_rating')) {
+                $query->where('rating', request('filter_rating'));
+            }
+            $ulasans = $query->paginate(5); // tampil 5 per halaman
+        @endphp
+
+        <!-- Daftar Ulasan -->
+        @foreach ($ulasans as $ulasan)
+            <div class="border p-3 mb-3 rounded shadow-sm">
+                
+                <!-- Header Ulasan -->
+<div class="d-flex justify-content-between align-items-start">
+    <div class="d-flex align-items-center">
+        <!-- Foto Profil (trigger modal) -->
+        <img src="{{ $ulasan->user->profile_photo ? asset('storage/' . $ulasan->user->profile_photo) : asset('images/default-foto.png') }}"
+             alt="Foto {{ $ulasan->user->name }}"
+             class="rounded-circle me-2"
+             style="width:40px; height:40px; object-fit:cover; cursor:pointer;"
+             data-bs-toggle="modal" data-bs-target="#fotoModal{{ $ulasan->id }}">
+
+        <!-- Nama + Tanggal -->
+        <div>
+            <strong>{{ $ulasan->user->name ?? 'User tidak ditemukan' }}</strong>
+            <small class="text-muted d-block">{{ $ulasan->created_at->diffForHumans() }}</small>
+        </div>
+    </div>
+
+    <!-- Rating -->
+    <div>
+        <span style="color: gold; font-size: 18px;">
+            {{ str_repeat('★', $ulasan->rating) }}{{ str_repeat('☆', 5 - $ulasan->rating) }}
+        </span>
+    </div>
+</div>
+
+<!-- Modal Foto Profil -->
+<div class="modal fade" id="fotoModal{{ $ulasan->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Tambah modal-lg -->
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body text-center">
+                <img src="{{ $ulasan->user->profile_photo ? asset('storage/' . $ulasan->user->profile_photo) : asset('images/default-foto.png') }}"
+                     alt="Foto {{ $ulasan->user->name }}"
+                     class="img-fluid rounded"
+                     style="max-height: 90vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+                <!-- Isi Ulasan -->
+                <p class="mt-2 mb-1">{{ $ulasan->pesan }}</p>
+
+                <!-- Tombol untuk Pemilik -->
+                @if (Auth::check() && $ulasan->id_user == Auth::id())
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <!-- Edit -->
+                        <button class="btn btn-sm btn-warning px-3"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#editUlasan{{ $ulasan->id_ulasan }}">
+                            ✏️ Edit
+                        </button>
+
+                        <!-- Hapus -->
+                        <form action="{{ route('ulasan.destroy', $ulasan->id_ulasan) }}"
+                              method="POST"
+                              onsubmit="return confirm('Yakin ingin menghapus ulasan ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger px-3">🗑️ Hapus</button>
+                        </form>
+                    </div>
+
+                    <!-- Form Edit Collapse -->
+                    <div class="collapse mt-2" id="editUlasan{{ $ulasan->id_ulasan }}">
+                        <form action="{{ route('ulasan.update', $ulasan->id_ulasan) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <textarea name="komentar" class="form-control mb-2" required>{{ $ulasan->pesan }}</textarea>
+                            <select name="rating" class="form-select mb-2" required>
+                                @for ($i = 5; $i >= 1; $i--)
+                                    <option value="{{ $i }}" {{ $ulasan->rating == $i ? 'selected' : '' }}>
+                                        {{ str_repeat('★', $i) }}
+                                    </option>
+                                @endfor
+                            </select>
+                            <button type="submit" class="btn btn-success btn-sm">💾 Simpan</button>
+                        </form>
+                    </div>
+                @endif
+
+                <!-- Tombol Hapus Admin -->
+                @if (Auth::check() && Auth::user()->usertype === 'admin' && $ulasan->id_user !== Auth::id())
+                    <form action="{{ route('admin.ulasan.destroy', $ulasan->id_ulasan) }}"
+                          method="POST"
+                          onsubmit="return confirm('Admin, yakin ingin menghapus ulasan ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm mt-1">Hapus (Admin)</button>
+                    </form>
+                @endif
+            </div>
+        @endforeach
+
+        <!-- Pagination Bootstrap 5 - Diperbaiki -->
+        <div class="mt-4 d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <!-- Previous Page Link -->
+                    @if ($ulasans->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo; Sebelumnya</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $ulasans->previousPageUrl() }}#komentar" rel="prev">&laquo; Sebelumnya</a>
+                        </li>
+                    @endif
+
+                    <!-- Pagination Elements -->
+                    @foreach ($ulasans->getUrlRange(1, $ulasans->lastPage()) as $page => $url)
+                        @if ($page == $ulasans->currentPage())
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $url }}#komentar">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+
+                    <!-- Next Page Link -->
+                    @if ($ulasans->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $ulasans->nextPageUrl() }}#komentar" rel="next">Selanjutnya &raquo;</a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link">Selanjutnya &raquo;</span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>
+
+<!-- CSS tambahan untuk styling yang lebih baik -->
+<style>
+/* Pastikan pagination terlihat dan dapat diklik */
+.pagination {
+    margin: 20px 0;
+}
+
+.page-link {
+    color: #800080;
+    border: 1px solid #dee2e6;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.page-link:hover {
+    color: #5a005a;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-item.active .page-link {
+    background-color: #800080;
+    border-color: #800080;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Hilangkan panah carousel */
+.carousel-control-prev,
+.carousel-control-next,
+.swiper-button-next,
+.swiper-button-prev {
+    display: none !important;
+}
+
+/* Tambahan styling untuk form dan ulasan */
+.form-control:focus, .form-select:focus {
+    border-color: #800080;
+    box-shadow: 0 0 0 0.2rem rgba(128, 0, 128, 0.25);
+}
+
+.btn-primary {
+    background-color: #800080;
+    border-color: #800080;
+}
+
+.btn-primary:hover {
+    background-color: #5a005a;
+    border-color: #5a005a;
+}
+</style>
+
+
 
     </main>
 
