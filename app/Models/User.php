@@ -6,12 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-
+    use SoftDeletes;
     use Notifiable;
 
     /**
@@ -53,6 +55,24 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+     protected static function boot()
+    {
+        parent::boot();
+
+        // Ketika event 'forceDeleting' dipanggil (penghapusan permanen), 
+        // kita hapus file terkait dari storage.
+        static::forceDeleting(function ($user) {
+            
+            // Hapus Foto Profil dari storage
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+            
+            // Catatan: Data transaksi (Orders, dll) tetap aman di database
+            // karena ini adalah Soft Delete, bukan penghapusan permanen.
+        });
+    }
 
     protected function casts(): array
     {

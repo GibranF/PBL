@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Auth\Events\Lockout;
@@ -11,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Tentukan apakah user diizinkan membuat request.
      */
     public function authorize(): bool
     {
@@ -19,40 +20,38 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Aturan validasi input login.
      */
     public function rules(): array
     {
         return [
-            'login' => ['required', 'string'], // Login bisa pakai username atau email
+            'login' => ['required', 'string'], // Bisa email atau username
             'password' => ['required', 'string'],
         ];
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Logika autentikasi login.
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        // Menentukan apakah yang dimasukkan adalah email atau username
-        $loginField = filter_var($this->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        // Deteksi apakah input berupa email atau username
+        $loginField = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
 
         $credentials = [
-            $loginField => $this->login,
-            'password' => $this->password,
+            $loginField => $this->input('login'),
+            'password' => $this->input('password'),
         ];
 
-        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
+        // Coba login
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            // 🔴 Pesan error kustom
             throw ValidationException::withMessages([
-                'login' => trans('auth.failed'),
+                'login' => 'Username/email atau password salah.',
             ]);
         }
 
@@ -60,13 +59,11 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Batasi percobaan login berulang (rate limiting).
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -83,10 +80,10 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Get the rate limiting throttle key for the request.
+     * Key rate limit unik berdasarkan login + IP.
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->login).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('login')).'|'.$this->ip());
     }
 }

@@ -12,21 +12,26 @@
                     @csrf
                     <div class="input-boxes">
 
-                        <!-- Name -->
                         <div class="input-box">
                             <i class="fas fa-user"></i>
-                            <input type="text" name="name" placeholder="Masukkan nama anda" value="{{ old('name') }}" required
-                                title="Masukkan nama lengkap Anda">
+                            <input type="text" name="name" placeholder="Masukkan nama anda"
+                                value="{{ old('name') }}" title="Masukkan nama lengkap Anda"
+                                class="@error('name') error @enderror">
+                            @error('name')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Email -->
                         <div class="input-box">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" name="email" placeholder="Masukkan email anda" value="{{ old('email') }}"
-                                required title="Masukkan email aktif">
+                            <input type="email" name="email" placeholder="Masukkan email anda"
+                                value="{{ old('email') }}" title="Masukkan email aktif"
+                                class="@error('email') error @enderror">
+                            @error('email')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Password -->
                         <div class="input-box">
                             <i class="fas fa-lock"></i>
                             <input type="password" name="password" placeholder="Password minimal 8 karakter" required
@@ -36,33 +41,41 @@
                             @enderror
                         </div>
 
-                        <!-- Confirm Password -->
                         <div class="input-box">
                             <i class="fas fa-lock"></i>
-                            <input type="password" name="password_confirmation" placeholder="Konfirmasi password anda" required
-                                title="Konfirmasi password yang sama" class="@error('password') error @enderror">
-                                @error('password')
+                            <input type="password" name="password_confirmation" placeholder="Konfirmasi password anda"
+                                required title="Konfirmasi password yang sama"
+                                class="@error('password_confirmation') error @enderror">
+                            {{-- We check for a specific error on this field --}}
+                            @error('password_confirmation')
+                                <span class="error-message">{{ $message }}</span>
                             @enderror
                         </div>
 
 
-                        <!-- Address -->
                         <div class="input-box">
                             <i class="fas fa-home"></i>
-                            <input type="text" name="alamat" placeholder="Masukkan alamat lengkap anda" value="{{ old('alamat') }}"
-                                required title="Masukkan alamat lengkap">
+                            <input type="text" name="alamat" placeholder="Masukkan alamat lengkap anda"
+                                value="{{ old('alamat') }}" title="Masukkan alamat lengkap"
+                                class="@error('alamat') error @enderror">
+                            @error('alamat')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Phone Number -->
                         <div class="input-box">
                             <i class="fas fa-phone"></i>
-                            <input type="text" name="nomor_hp" placeholder="Masukkan nomor seluler anda"
+                            <input type="text" name="nomor_hp"
+                                placeholder="Nomor seluler min 10, max 15 digit"
                                 value="{{ old('nomor_hp') }}" required maxlength="15" inputmode="numeric"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                title="Nomor HP hanya boleh angka dan maksimal 15 digit">
+                                title="Nomor HP hanya boleh angka, min 10, max 15 digit"
+                                class="@error('nomor_hp') error @enderror">
+                            @error('nomor_hp')
+                                <span class="error-message">{{ $message }}</span>
+                            @enderror
                         </div>
 
-                        <!-- Submit -->
                         <div class="button input-box">
                             <input type="submit" value="Submit">
                         </div>
