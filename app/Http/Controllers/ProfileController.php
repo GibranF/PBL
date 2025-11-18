@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule; // Tambahkan ini jika tidak ada
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -31,21 +32,46 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $request->validate([
+        $validated = $request->validate([
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'alamat' => 'required|string',
+            'nomor_hp' => [
+                'required',
+                'regex:/^[0-9+]{10,13}$/',
+                Rule::unique('users')->ignore($user->id),
+            ],
+        ], [
+            'name.required' => 'Nama tidak boleh kosong.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid (harus mengandung @).',
+            'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'nomor_hp.required' => 'Nomor HP wajib diisi.',
+            'nomor_hp.regex' => 'Nomor HP harus 10–13 digit dan hanya boleh berisi angka atau tanda + di awal.',
+            'nomor_hp.unique' => 'Nomor HP sudah digunakan oleh pengguna lain.',
         ]);
 
+
+        // ✅ Isi data baru ke model user
         $user->fill([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'alamat'    => $request->alamat,
-            'nomor_hp'  => $request->nomor_hp,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'alamat' => $validated['alamat'],
+            'nomor_hp' => $validated['nomor_hp'],
         ]);
 
+        // ✅ Reset verifikasi jika email berubah
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
+        // ✅ Upload foto profil baru (hapus lama jika ada)
         if ($request->hasFile('profile_photo')) {
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
@@ -55,10 +81,13 @@ class ProfileController extends Controller
             $user->profile_photo = $path;
         }
 
+        // ✅ Simpan perubahan user
         $user->save();
 
+        // ✅ Kembalikan ke halaman edit profil dengan pesan sukses
         return Redirect::route('profile.edit')->with('success', 'Profil berhasil diperbarui.');
     }
+
 
     public function deletePhoto(Request $request): RedirectResponse
     {
@@ -72,39 +101,44 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('success', 'Foto profil berhasil dihapus.');
     }
-    
+
     /**
      * Hapus akun pengguna. (METHOD YANG HILANG)
      */
     public function destroy(Request $request): RedirectResponse
     {
         Log::info('DELETE ACCOUNT: Method destroy dimulai.');
-        
-        // 1. Validasi Password - UJI COBA: Diubah dari 'current_password' menjadi 'min:8'
-        // Jika ini berhasil, masalahnya ada pada password atau hash database Anda.
+
         $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'string', 'min:8'], 
+            'password' => ['required', 'string'],
         ]);
-        
-        Log::info('DELETE ACCOUNT: Validasi password berhasil untuk user ID: ' . $request->user()->id);
 
         $user = $request->user();
 
-        // 2. Logout Pengguna Saat Ini
-        Auth::logout();
-        Log::info('DELETE ACCOUNT: User berhasil di-logout dari sesi.');
+        // ✅ Cek apakah password yang dimasukkan cocok dengan password user
+        if (!Hash::check($request->password, $user->password)) {
+            Log::warning('DELETE ACCOUNT: Password salah untuk user ID ' . $user->id);
 
-        // 3. Hapus Pengguna (Soft Delete)
-        // Ini memanggil event 'deleting' atau 'forceDeleting' di model
-        // dan mengisi kolom 'deleted_at'.
+            return back()
+                ->withErrors([
+                    'password' => 'Password yang Anda masukkan salah.',
+                ], 'userDeletion');
+        }
+
+        Log::info('DELETE ACCOUNT: Validasi password berhasil untuk user ID: ' . $user->id);
+
+        // ✅ Logout dulu
+        Auth::logout();
+
+        // ✅ Soft delete user (butuh trait SoftDeletes di model User)
         $user->delete();
         Log::info('DELETE ACCOUNT: User ID ' . $user->id . ' berhasil di soft delete.');
 
-        // 4. Invalidate Session dan Regenerate Token
+        // ✅ Hapus sesi dan token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // 5. Redirect ke Halaman Utama/Login
+        // ✅ Redirect ke halaman utama
         return Redirect::to('/')->with('status', 'Akun berhasil dihapus.');
     }
 }

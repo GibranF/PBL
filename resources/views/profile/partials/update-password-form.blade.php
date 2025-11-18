@@ -1,12 +1,12 @@
 {{-- Card Ganti Password --}}
-
 <div class="card shadow-sm border-0">
     <div class="card-body">
         <h5 class="card-title">Ganti Password</h5>
         <p class="card-subtitle text-muted mb-3">Pastikan password baru cukup kuat.</p>
-           @if (session('status') === 'password-updated')
-                    <div class="text-success small">Password diperbarui.</div>
-                @endif
+
+        @if (session('status') === 'password-updated')
+            <div id="success-message" class="text-success small">Password berhasil diperbarui.</div>
+        @endif
 
         <form method="POST" action="{{ route('password.update') }}">
             @csrf
@@ -30,8 +30,7 @@
 
             <div class="mb-3">
                 <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"
-                    required>
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
                 @error('password_confirmation')
                     <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
@@ -43,9 +42,9 @@
         </form>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Sembunyikan pesan sukses setelah 2 detik
         const successMessage = document.getElementById('success-message');
         if (successMessage) {
             setTimeout(() => {

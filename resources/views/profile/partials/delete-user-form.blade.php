@@ -31,5 +31,5 @@
 <script>
     function confirmDelete() {
         return confirm('Apakah Anda yakin ingin menghapus akun ini? Semua data akan hilang.');
-    }
+        }
 </script>

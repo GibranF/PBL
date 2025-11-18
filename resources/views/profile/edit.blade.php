@@ -23,17 +23,24 @@
                 {{-- Judul --}}
                 <h2 class="mb-4 fw-bold text-dark text-center">PROFILE</h2>
 
-                {{-- Error --}}
-                @if ($errors->any())
+                {{-- Error (gabungan untuk profil & hapus akun) --}}
+                @if ($errors->any() || $errors->userDeletion->any())
                     <div class="alert alert-danger">
-                        <strong>Terjadi kesalahan:</strong>
+                        <strong>Terjadi kesalahan :</strong>
                         <ul class="mb-0">
+                            {{-- Error umum (update profil, password, dll) --}}
                             @foreach ($errors->all() as $error)
+                                <li>• {{ $error }}</li>
+                            @endforeach
+
+                            {{-- Error khusus hapus akun --}}
+                            @foreach ($errors->userDeletion->all() as $error)
                                 <li>• {{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
+
 
                 <div class="row g-4">
                     {{-- Foto Profil --}}
@@ -92,8 +99,7 @@
 
                                 {{-- Popup sukses --}}
                                 @if (session('success'))
-                                    <div id="successPopup" class="alert alert-success alert-dismissible fade show"
-                                        role="alert">
+                                    <div id="successPopup" class="alert alert-success alert-dismissible fade show" role="alert">
                                         <strong>Sukses!</strong> {{ session('success') }}
                                     </div>
                                 @endif
@@ -164,17 +170,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const profilePhotoInput = document.getElementById('profilePhotoInput');
             const profilePreview = document.getElementById('profilePreview');
             const successPopup = document.getElementById('successPopup');
 
             // Preview image sebelum upload
-            profilePhotoInput.addEventListener('change', function(e) {
+            profilePhotoInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         profilePreview.src = event.target.result;
                     };
                     reader.readAsDataURL(file);

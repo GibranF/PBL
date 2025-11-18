@@ -53,7 +53,7 @@ class LayananController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_layanan' => 'required|string|max:255',
+            'nama_layanan' => 'required|string|max:255|unique:layanan,nama_layanan',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'required|string',
         ]);
