@@ -22,12 +22,14 @@
 
                 <!-- Table -->
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle text-center" style="min-width: 800px">
+                    <table class="table table-hover table-bordered align-middle text-center" style="min-width: 900px">
                         <thead class="table-light text-center">
                             <tr>
                                 <th>ID</th>
+                                <th>Gambar</th>
                                 <th>Nama Layanan</th>
                                 <th>Harga</th>
+                                <th>Satuan</th>
                                 <th>Deskripsi</th>
                                 <th>Aksi</th>
                             </tr>
@@ -36,8 +38,22 @@
                             @foreach ($layanan as $layananAdmin)
                                 <tr>
                                     <td class="fw-bold">{{ $layananAdmin->id_layanan }}</td>
+
+                                    <!-- Kolom Gambar -->
+                                    <td>
+                                        @if($layananAdmin->gambar)
+                                            <img src="{{ asset('storage/' . $layananAdmin->gambar) }}"
+                                                alt="{{ $layananAdmin->nama_layanan }}" width="120" class="img-thumbnail rounded">
+
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+
+
                                     <td>{{ $layananAdmin->nama_layanan }}</td>
                                     <td>Rp {{ number_format($layananAdmin->harga, 0, ',', '.') }}</td>
+                                    <td>{{ $layananAdmin->satuan ?? '-' }}</td>
                                     <td>
                                         <p class="mb-0 deskripsi-text text-truncate"
                                             style="max-width: 600px; cursor: pointer; overflow: hidden; white-space: nowrap;"
@@ -48,12 +64,12 @@
 
                                     <td>
                                         <div class="btn-group">
-                                            <a href="" class="btn btn-sm btn-outline-warning">
+                                            <a href="{{ route('admin.layanan.edit', $layananAdmin->id_layanan) }}"
+                                                class="btn btn-sm btn-outline-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form action="{{ route('admin.layanan.destroy', $layananAdmin->id_layanan) }}"
-                                                method="POST"
-                                                onsubmit="return confirm('Yakin ingin mengarsipkan layanan ini?')"
+                                                method="POST" onsubmit="return confirm('Yakin ingin mengarsipkan layanan ini?')"
                                                 style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -88,9 +104,9 @@
 
 @push('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll(".deskripsi-text").forEach(function(el) {
-                el.addEventListener("click", function() {
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".deskripsi-text").forEach(function (el) {
+                el.addEventListener("click", function () {
                     if (el.classList.contains("expanded")) {
                         // kembali truncate
                         el.classList.remove("expanded");

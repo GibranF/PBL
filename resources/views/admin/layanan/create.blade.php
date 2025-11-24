@@ -22,7 +22,9 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.layanan.store') }}" method="POST" class="row g-3 mt-3">
+                <!-- form upload gambar harus pakai enctype -->
+                <form action="{{ route('admin.layanan.store') }}" method="POST" enctype="multipart/form-data"
+                    class="row g-3 mt-3">
                     @csrf
 
                     <div class="col-md-6">
@@ -38,12 +40,27 @@
                             oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/^0+/, '')" />
                     </div>
 
-
                     <div class="col-md-12">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
                         <textarea name="deskripsi" id="deskripsi" rows="3" class="form-control rounded-2 shadow-sm"
                             placeholder="Contoh: Pembersihan karpet menggunakan metode dry clean..."
                             required>{{ old('deskripsi') }}</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="satuan" class="form-label">Satuan</label>
+                        <input type="text" name="satuan" id="satuan" class="form-control rounded-2 shadow-sm"
+                            placeholder="Contoh: kg, pcs, per set" value="{{ old('satuan') }}">
+                    </div>
+
+
+                    <!-- input file gambar -->
+                    <div class="col-md-12">
+                        <label for="gambar" class="form-label">Gambar Layanan</label>
+                        <p class="text-muted" style="font-size: 0.9em;">*Disarankan ukuran gambar: 600 x 700 px</p>
+                        <input type="file" name="gambar" id="gambar" class="form-control rounded-2 shadow-sm"
+                            accept="image/*">
+                        <small class="text-muted">Format: JPG, JPEG, PNG. Maksimal 2MB.</small>
                     </div>
 
                     <div class="col-12 text-end mt-3">

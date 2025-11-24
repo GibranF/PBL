@@ -973,97 +973,84 @@ a:hover, button:hover, .btn:hover, .card:hover, .nav-link:hover {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.5); /* Even lighter for credits */
 }
+/*--------------------------------------------------------------
+# Global Footer (Media Queries yang Disesuaikan)
+--------------------------------------------------------------*/
 
-/* Responsive adjustments for footer columns */
-@media (max-width: 992px) {
-  .footer .footer-top .col-lg-5,
-  .footer .footer-top .col-lg-3,
-  .footer .footer-top .col-lg-4 {
-    width: 100%; /* Stack all columns vertically on medium screens */
-    margin-bottom: 40px; /* More space between rows when stacked */
-    text-align: center; /* Center align content for stacked columns */
-  }
+@media (max-width: 991.98px) {
+    /* Aturan Utama: Semua kolom menumpuk vertikal dan rata tengah */
+    .footer .footer-top .col-lg-4,
+    .footer .footer-top .col-lg-2, /* Menu */
+    .footer .footer-top .col-lg-6 {
+        width: 100%;
+        margin-bottom: 30px; 
+        text-align: center; /* Meratakan Tengah Semua Konten Kolom */
+    }
 
-  .footer .footer-about .logo {
-    justify-content: center; /* Center logo when text is centered */
-  }
+    /* Logo dan Social Links */
+    .footer .footer-about .logo {
+        justify-content: center; /* Pusatkan logo */
+    }
+    .footer .social-links {
+        justify-content: center; /* Pusatkan ikon sosial */
+    }
 
-  .footer .social-links {
-    justify-content: center; /* Center social icons */
-  }
+    /* Heading Footer */
+    .footer h4 {
+        text-align: center;
+    }
+    .footer h4::after {
+        left: 50%; /* Pusatkan garis bawah */
+        transform: translateX(-50%);
+    }
 
-  .footer h4 {
-    text-align: center; /* Center headings */
-  }
+    /* Perbaikan List Link Menu (Menghilangkan margin aneh) */
+    .footer .footer-links ul {
+        /* Menggunakan display inline-block untuk memusatkan blok ul */
+        display: inline-block; 
+        text-align: left; /* Teks di dalam ul kembali rata kiri */
+    }
 
-  .footer h4::after {
-    left: 50%; /* Center underline for headings */
-    transform: translateX(-50%);
-  }
-
-  .footer .footer-links ul {
-    display: inline-block; /* Helps center the list */
-  }
-
-  .footer .footer-links ul li {
-    justify-content: center; /* Center individual list items */
-  }
-
-  .footer .form-subscribe {
-    max-width: 350px; /* Limit width of form on mobile */
-    margin-left: auto;
-    margin-right: auto;
-  }
+    .footer .footer-links ul li {
+        /* Memastikan ikon berada di kiri teks */
+        justify-content: flex-start; 
+        /* Hapus margin-left yang tidak perlu */
+        margin-left: 0; 
+    }
+    
+    /* Karena form subscribe tidak ada di HTML Anda, aturan ini diabaikan */
+    /* .footer .form-subscribe {
+        max-width: 350px; 
+        margin-left: auto;
+        margin-right: auto;
+    } */
 }
 
-@media (max-width: 768px) {
-  .footer {
-    padding-top: 40px; /* Adjust padding for smaller screens */
-    padding-bottom: 30px;
-  }
-
-  .footer .footer-top {
-    padding-bottom: 30px;
-  }
-
-  .footer .footer-top .col-lg-5,
-  .footer .footer-top .col-lg-3,
-  .footer .footer-top .col-lg-4 {
-    margin-bottom: 30px; /* Spacing between stacked columns */
-  }
-}
-
+/* 📱 Smartphone Portrait (Max-width: 576px) */
 @media (max-width: 576px) {
-  .footer {
-    padding-top: 30px;
-    padding-bottom: 20px;
-  }
-  .footer .footer-top {
-    padding-bottom: 20px;
-  }
-  .footer .footer-top .col-lg-5,
-  .footer .footer-top .col-lg-3,
-  .footer .footer-top .col-lg-4 {
-    margin-bottom: 25px;
-  }
-  .footer .copyright {
-    padding-top: 25px;
-  }
-  .footer .social-links a {
-    width: 35px; /* Slightly smaller icons for very small screens */
-    height: 35px;
-    font-size: 15px;
-  }
+    .footer {
+        padding-top: 30px;
+        padding-bottom: 20px;
+    }
+    .footer .footer-top {
+        padding-bottom: 20px;
+    }
+    .footer .footer-top .col-lg-4,
+    .footer .footer-top .col-lg-2,
+    .footer .footer-top .col-lg-6 {
+        margin-bottom: 25px;
+    }
+    .footer .copyright {
+        padding-top: 20px;
+    }
+    .footer .social-links a {
+        width: 35px;
+        height: 35px;
+        font-size: 15px;
+    }
+    /* ... (Aturan Form Subscribe dihilangkan karena tidak ada di HTML) ... */
 
-  .footer .form-subscribe {
-      flex-direction: column; /* Stack input and button */
-      max-width: 90%; /* Adjust width for very small screens */
-  }
-
-  .footer .form-subscribe .btn-subscribe {
-      width: 100%; /* Make button full width */
-      margin-top: 10px; /* Space between input and button */
-  }
+  
 }
 
 /*--------------------------------------------------------------
@@ -1442,6 +1429,97 @@ section,
   100% { transform: translateY(0); }
 }
 
+/*--------------------------------------------------------------
+# Contact Section Styling (Responsive Maps)
+--------------------------------------------------------------*/
+
+/* Styling untuk container Peta */
+.contact .map {
+    /* Gunakan padding-bottom untuk menciptakan rasio aspek responsif (misal 450/600 = 75%) */
+    position: relative;
+    padding-bottom: 75%; /* Menjaga rasio 4:3 (450px tinggi untuk setiap 600px lebar) */
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 20px; /* Jarak antara peta dan elemen di bawahnya */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contact .map iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Peta akan selalu mengisi lebar wadahnya */
+    height: 100%; /* Peta akan selalu mengisi tinggi wadahnya yang responsif */
+}
+
+/* Info Box Styling */
+.contact .info-box {
+    padding: 30px;
+    background: var(--surface-color); /* Warna permukaan soft */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(106, 13, 173, 0.1);
+    height: 100%; /* Memastikan kolom informasi mengisi tinggi yang sama dengan peta di desktop */
+}
+
+.contact .info-box h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--heading-color);
+}
+
+.contact .info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.contact .info-item .icon-box {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: color-mix(in srgb, var(--accent-color), transparent 90%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.contact .info-item .icon-box i {
+    font-size: 20px;
+    color: var(--accent-color);
+}
+
+.contact .info-item .content {
+    flex-grow: 1;
+}
+
+.contact .info-item .content h4 {
+    padding: 0;
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--default-color);
+}
+
+.contact .info-item .content p {
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--default-color), transparent 20%);
+}
+
+/* Mobile Adjustments for Contact Section */
+@media (max-width: 991px) {
+    /* Di tablet/mobile, peta dan info box akan menumpuk vertikal */
+    .contact .map {
+        /* Rasio yang lebih tinggi (misal 1:1 atau 3:2) lebih baik di mobile */
+        padding-bottom: 100%; /* Rasio 1:1 (Square) di mobile */
+    }
+}
 
 /*--------------------------------------------------------------
 # About Section
@@ -2226,67 +2304,61 @@ section,
   transform: translateY(-2px);
 }
 
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-  .service-card-wrapper {
-    flex: 0 0 280px;
-  }
-}
+/*--------------------------------------------------------------
+# Responsive Adjustments (Android/Mobile Focus)
+--------------------------------------------------------------*/
 
+/* Lebar Tablet dan Layar Lebih Kecil */
 @media (max-width: 992px) {
-  .service-container {
-    padding-bottom: 15px;
-  }
-  
-  .service-wrapper {
-    gap: 15px;
-  }
-  
-  .service-card-wrapper {
-    flex: 0 0 260px;
-  }
-  
-  .service-card .card-body {
-    padding: 20px;
-  }
+    .service-wrapper {
+        gap: 15px;
+    }
+    .service-card-wrapper {
+        /* Lebar diperkecil sedikit */
+        flex: 0 0 260px; 
+    }
+    .service-card .card-body {
+        padding: 20px;
+    }
 }
 
+/* Lebar Smartphone (Optimal untuk Android) */
 @media (max-width: 768px) {
-  .service-card-wrapper {
-    flex: 0 0 240px;
-  }
-  
-  .service-card .card-title {
-    font-size: 1.1rem;
-  }
-  
-  .service-card .card-price {
-    font-size: 1.3rem;
-  }
+    .service-card-wrapper {
+        /* Ukuran kartu diperkecil agar lebih dari setengah layar */
+        flex: 0 0 240px; 
+    }
+    .service-card .card-title {
+        font-size: 1.15rem; /* Ukuran heading sedikit lebih kecil */
+    }
+    .service-card .card-price {
+        font-size: 1.3rem;
+    }
 }
 
+/* Smartphone Portrait (Layar Sangat Kecil) */
 @media (max-width: 576px) {
-  .service-wrapper {
-    gap: 12px;
-  }
-  
-  .service-card-wrapper {
-    flex: 0 0 220px;
-  }
-  
-  .service-card .card-body {
-    padding: 15px;
-  }
-  
-  .service-card .card-text {
-    font-size: 0.85rem;
-    min-height: 70px;
-  }
-  
-  .service-card .btn-primary {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
+    .service-wrapper {
+        gap: 12px;
+    }
+    .service-card-wrapper {
+        /* Pastikan kartu masih nyaman dilihat, mendekati 2/3 layar */
+        flex: 0 0 220px; 
+    }
+    .service-card .card-body {
+        padding: 15px; /* Padding lebih kecil agar konten lebih banyak terlihat */
+    }
+    .service-card .card-text {
+        font-size: 0.85rem; /* Teks lebih kecil */
+        min-height: 50px; /* Diperkecil agar lebih ringkas */
+    }
+    .service-card .card-price {
+        font-size: 1.2rem;
+    }
+    .service-card .btn-primary {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
 }
 
 /* Hide scrollbar but keep functionality */
@@ -2535,3 +2607,4 @@ section,
     background: none;
   }
 }
+

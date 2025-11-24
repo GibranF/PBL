@@ -76,7 +76,7 @@ class PesananAdminController extends Controller
             'layanan.*.id_layanan' => 'required|integer|exists:layanan,id_layanan',
             'layanan.*.harga' => 'required|numeric|min:0',
             'layanan.*.dimensi' => 'required|numeric|min:0.1|max:500',
-            'layanan.*.satuan' => 'required|string|max:10',
+            'layanan.*.satuan' => 'required|string',
             'antar_jemput' => 'nullable|in:yes,no',
             'jarak_km' => 'nullable|numeric|min:0',
             'pembayaran_option' => 'required|in:bayar_online,bayar_offline,bayar_nanti',
@@ -114,8 +114,11 @@ class PesananAdminController extends Controller
                 'status_pembayaran' => 'belum dibayar',
             ]);
 
-            // Menyimpan detail transaksi
             foreach ($validated['layanan'] as $item) {
+
+                // Ambil data layanan dari database
+                $layanan = Layanan::find($item['id_layanan']);
+
                 DetailTransaksi::create([
                     'id_transaksi' => $idTransaksi,
                     'id_layanan' => $item['id_layanan'],

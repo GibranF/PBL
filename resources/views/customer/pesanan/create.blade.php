@@ -54,16 +54,27 @@
                         <div class="service-card">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Pilih Layanan</label>
-                                    <select name="layanan[0][id_layanan]" class="form-control service-select">
-                                        <option value="">Pilih Layanan</option>
-                                        @foreach ($layanan as $service)
-                                            <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}">
-                                                {{ $service->nama_layanan }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+    <label class=>Pilih Layanan</label>
+    <select name="layanan[0][id_layanan]" 
+        class="form-select form-select-lg rounded-2 layanan" required>
+
+    <option value="" disabled {{ $selectedLayanan ? '' : 'selected' }}>
+        Pilih layanan
+    </option>
+
+    @foreach ($layanan as $service)
+        <option 
+            value="{{ $service->id_layanan }}"
+            data-satuan="{{ $service->satuan }}"
+            data-price="{{ $service->harga }}"
+            {{ ($selectedLayanan == $service->id_layanan) ? 'selected' : '' }}
+        >
+            {{ $service->nama_layanan }} ({{ $service->satuan }})
+        </option>
+    @endforeach
+</select>
+</div>
+
                                 <div class="form-group">
                                     <label>Harga</label>
                                     <input type="text" class="form-control price-display" readonly>
@@ -78,12 +89,11 @@
                                     <small class="form-text">Gunakan titik (.)</small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Satuan</label>
-                                    <select name="layanan[0][satuan]" class="form-control unit-select">
-                                        <option value="kg">Kilogram</option>
-                                        <option value="m2">Meter persegi</option>
-                                        <option value="pcs">Pcs</option>
-                                    </select>
+                                    <label class="form-label">Satuan</label>
+    <input type="text" 
+           name="layanan[0][satuan]" 
+           class="form-control form-control-lg rounded-2 satuan" 
+           readonly>
                                 </div>
                             </div>
                         </div>
@@ -600,4 +610,20 @@
             document.querySelector('[name="antar_jemput"]').dispatchEvent(new Event('change'));
         });
     </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const layananSelect = document.querySelector(".layanan");
+    const satuanInput = document.querySelector(".satuan");
+
+    layananSelect.addEventListener("change", function () {
+        const satuan = this.options[this.selectedIndex].getAttribute("data-satuan");
+
+        if (satuan && satuan !== "") {
+            satuanInput.value = satuan;
+        } else {
+            satuanInput.value = "-";
+        }
+    });
+});
+</script>
 @endsection

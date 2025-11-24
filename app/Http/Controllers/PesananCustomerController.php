@@ -53,13 +53,17 @@ class PesananCustomerController extends Controller
         return view('customer.pesanan.show', compact('transaksi'));
     }
 
-    public function create()
-    {
-        $user = Auth::user();
-        $layanan = Layanan::all();
+    public function create(Request $request, $id_layanan = null)
+{
+    $user = Auth::user();
+    $layanan = Layanan::all();
 
-        return view('customer.pesanan.create', compact('user', 'layanan'));
-    }
+    return view('customer.pesanan.create', [
+        'user' => $user,
+        'layanan' => $layanan,
+        'selectedLayanan' => $id_layanan
+    ]);
+}
 
     public function store(Request $request, FonnteService $fonnte)
     {
@@ -108,6 +112,8 @@ class PesananCustomerController extends Controller
             ]);
 
             foreach ($validated['layanan'] as $item) {
+                 // Ambil data layanan dari database
+                $layanan = Layanan::find($item['id_layanan']);
                 DetailTransaksi::create([
                     'id_transaksi' => $idTransaksi,
                     'id_layanan' => $item['id_layanan'],

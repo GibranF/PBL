@@ -47,12 +47,19 @@
                     <div class="layanan-box col-md-6">
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-primary">Pilih Layanan</label>
-                            <select name="layanan[0][id_layanan]" class="form-select form-select-lg rounded-2 layanan"
-                                style="border-color: pink;" required>
-                                <option value="" selected disabled>Pilih layanan</option>
+
+                            <select name="layanan[0][id_layanan]"
+                                class="form-select form-select-lg rounded-3 layanan select-responsive" required>
+
+                                <option value="" selected disabled class="text-muted">
+                                    🔽 Pilih layanan
+                                </option>
+
                                 @foreach ($layanan as $service)
-                                    <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}">
-                                        {{ $service->nama_layanan }}</option>
+                                    <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}"
+                                        data-satuan="{{ $service->satuan }}">
+                                        {{ $service->nama_layanan }} ({{ $service->satuan ?? '-' }})
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -71,13 +78,10 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-primary">Satuan</label>
-                            <select name="layanan[0][satuan]" class="form-select form-select-lg rounded-2 satuan"
-                                style="border-color: pink;" required>
-                                <option value="kg">Kilogram</option>
-                                <option value="m2">Meter persegi</option>
-                                <option value="pcs">Pcs</option>
-                            </select>
+                            <input type="text" name="layanan[0][satuan]" class="form-control form-control-lg rounded-2 satuan"
+                                style="border-color: pink;" readonly>
                         </div>
+
                     </div>
                 @endif
             </div>
@@ -196,37 +200,37 @@
                 newLayanan.classList.add('layanan-box', 'col-md-6');
 
                 newLayanan.innerHTML = `
-                <div class="mb-3">
-                    <label class="form-label fw-semibold text-primary">Pilih Layanan</label>
-                    <select name="layanan[${index}][id_layanan]" class="form-select form-select-lg rounded-2 layanan" style="border-color: pink;" required>
-                        <option value="" selected disabled>Pilih layanan</option>
-                        @foreach ($layanan as $service)
-                            <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}">{{ $service->nama_layanan }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold text-primary">Harga</label>
-                    <input type="text" class="form-control form-control-lg rounded-2 harga-display" readonly placeholder="Rp 0" style="border-color: pink;" />
-                    <input type="hidden" name="layanan[${index}][harga]" class="harga" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold text-primary">Jumlah (Kg/M²/Pcs)</label>
-                    <input type="number" name="layanan[${index}][dimensi]" class="form-control form-control-lg rounded-2 dimensi" style="border-color: pink;" step="0.01" min="0.01" required placeholder="Contoh: 1.5" />
-                    <small class="text-muted">Gunakan titik (.) sebagai pemisah desimal</small>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold text-primary">Satuan</label>
-                    <select name="layanan[${index}][satuan]" class="form-select form-select-lg rounded-2 satuan" style="border-color: pink;" required>
-                        <option value="kg">Kilogram</option>
-                        <option value="m2">Meter persegi</option>
-                        <option value="pcs">Pcs</option>
-                    </select>
-                </div>
-                <button type="button" class="btn btn-outline-danger btn-sm rounded-2 remove-layanan">
-                    <i class="bi bi-x-lg"></i> Hapus Layanan
-                </button>
-            `;
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-primary">Pilih Layanan</label>
+                                    <select name="layanan[${index}][id_layanan]" class="form-select form-select-lg rounded-2 layanan" style="border-color: pink;" required>
+                                        <option value="" selected disabled>Pilih layanan</option>
+                                        @foreach ($layanan as $service)
+                                            <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}">{{ $service->nama_layanan }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-primary">Harga</label>
+                                    <input type="text" class="form-control form-control-lg rounded-2 harga-display" readonly placeholder="Rp 0" style="border-color: pink;" />
+                                    <input type="hidden" name="layanan[${index}][harga]" class="harga" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-primary">Jumlah (Kg/M²/Pcs)</label>
+                                    <input type="number" name="layanan[${index}][dimensi]" class="form-control form-control-lg rounded-2 dimensi" style="border-color: pink;" step="0.01" min="0.01" required placeholder="Contoh: 1.5" />
+                                    <small class="text-muted">Gunakan titik (.) sebagai pemisah desimal</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-primary">Satuan</label>
+                                    <select name="layanan[${index}][satuan]" class="form-select form-select-lg rounded-2 satuan" style="border-color: pink;" required>
+                                        <option value="kg">Kilogram</option>
+                                        <option value="m2">Meter persegi</option>
+                                        <option value="pcs">Pcs</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-2 remove-layanan">
+                                    <i class="bi bi-x-lg"></i> Hapus Layanan
+                                </button>
+                            `;
 
                 layananContainer.appendChild(newLayanan);
                 setupLayananEvents(newLayanan);
@@ -243,6 +247,36 @@
             document.getElementById('jarak_km').addEventListener('input', hitungTotal);
 
             hitungTotal();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            function updateSatuan(selectElement) {
+                let satuan = selectElement.options[selectElement.selectedIndex].dataset.satuan;
+                let satuanInput = selectElement.closest('.layanan-box').querySelector('.satuan');
+                satuanInput.value = satuan || '-';
+            }
+
+            // Untuk item layanan pertama
+            document.querySelectorAll('.layanan').forEach(function (select) {
+                updateSatuan(select);
+                select.addEventListener('change', function () {
+                    updateSatuan(this);
+                });
+            });
+
+            // Untuk layanan tambahan
+            document.getElementById('add-layanan').addEventListener('click', function () {
+                setTimeout(() => {
+                    document.querySelectorAll('.layanan').forEach(function (select) {
+                        select.addEventListener('change', function () {
+                            updateSatuan(this);
+                        });
+                    });
+                }, 300);
+            });
+
         });
     </script>
 @endsection

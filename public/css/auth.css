@@ -125,8 +125,61 @@ body {
         padding: 20px;
     }
 
-    .image-side, .text-side {
-        width: 100%;
+    /* MENYEMBUNYIKAN BAGIAN GAMBAR */
+    .image-side {
+        /* Set lebar menjadi 0% dan sembunyikan sepenuhnya */
+        display: none; 
+        width: 0;
+        padding: 0;
+    }
+    
+    /* PASTIKAN BAGIAN FORM MENGISI LEBAR PENUH */
+    .text-side {
+        width: 100%; /* Mengambil lebar penuh wadah */
+        padding: 20px; /* Padding di sekitar formulir */
+    }
+
+    .container {
+        width: 90%;
+        max-width: 500px;
+    }
+
+    input-box input {
+        padding: 9px 9px 9px 35px; /* Padding input lebih kecil lagi di mobile */
+        font-size: 14px; /* Ukuran font lebih kecil lagi di mobile */
+    }
+    
+    .input-box i {
+        left: 10px; /* Ikon digeser sedikit lagi */
+        font-size: 14px;
+    }
+
+    .button input {
+        padding: 10px;
+        font-size: 11px;
+    }
+
+    .text-side .title {
+        font-size: 22px; /* Judul sedikit dikecilkan di mobile */
+    }
+
+    .error-message {
+        font-size: 11px; /* Pesan kesalahan sangat kecil di mobile */
+        margin-left: 35px; /* Sesuaikan margin kiri */
+    }
+    
+    .text-side .text {
+        font-size: 12px;
+    }
+    
+    /* Aturan tambahan untuk perbaikan error message di mobile */
+    .error-message {
+        font-size: 11px;
+        margin-left: 15px; /* Sesuaikan margin agar rata dengan input tanpa ikon */
+    }
+
+    .input-box input.error {
+        padding: 10px 10px 10px 45px; /* Pertahankan padding kiri jika ikon tetap ada */
     }
 }
 
