@@ -340,7 +340,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function gagal_no_hp_lebih_dari_15_digit() // TC-22
+    public function gagal_no_hp_lebih_dari_15_digit() 
     {
         $response = $this->from('/register')->post('/register', [
             'name' => 'User HP Panjang',

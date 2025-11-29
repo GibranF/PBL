@@ -1,7 +1,6 @@
 @extends('layouts.cust')
 
 @section('styles')
-    <link href="{{ asset('assets/css/keranjang.css') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -19,7 +18,14 @@
     </style>
 
 @endsection
+
 @section('content')
+    @php
+        $totalLayanan = $transaksi->detailTransaksi->sum('subtotal');
+        $biayaAntar = $transaksi->biaya_antar ?? 0;
+        $totalAkhir = $totalLayanan + $biayaAntar;
+    @endphp
+
     <div class="d-flex justify-content-center align-items-center py-5">
         <div class="receipt shadow-lg p-4 rounded-3 bg-white" id="print-area"
             style="max-width: 380px; width: 100%; font-family: 'Courier New', monospace; border: 1px dashed #999;">
@@ -41,14 +47,15 @@
                 <p class="mb-1">No. Transaksi : <strong>{{ $transaksi->id_transaksi }}</strong></p>
                 <p class="mb-1">Tanggal : {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y H:i') }}</p>
                 <p class="mb-1">Kasir : {{ $transaksi->nama_kasir ?? '-' }}</p>
-                @if($transaksi->nama_pelanggan)
+
+                @if ($transaksi->nama_pelanggan)
                     <p class="mb-0">Pelanggan : {{ $transaksi->nama_pelanggan }}</p>
                 @endif
             </div>
 
             <hr style="border-top: 1px dashed #000;">
 
-            <!-- Detail Layanan -->
+            <!-- DETAIL LAYANAN -->
             <table class="w-100 mb-2" style="font-size: 13px;">
                 <thead>
                     <tr>
@@ -57,46 +64,91 @@
                         <th style="text-align:right;">Subtotal</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    @foreach($transaksi->detailTransaksi as $detail)
+                    @foreach ($transaksi->detailTransaksi as $detail)
                         <tr>
                             <td style="text-align:left;">{{ $detail->layanan->nama_layanan }}</td>
-                            <td style="text-align:center;">{{ $detail->dimensi }} {{ $detail->satuan }}</td>
+                            <td style="text-align:center;">
+                                {{ rtrim(rtrim(number_format($detail->dimensi, 2, ',', ''), '0'), ',') }}
+                                {{ $detail->satuan }}
+                            </td>
                             <td style="text-align:right;">Rp {{ number_format($detail->subtotal) }}</td>
                         </tr>
                     @endforeach
+
+                    <!-- TOTAL SUBTOTAL -->
+                    <tr>
+                        <td colspan="2" style="font-weight: bold; text-align:left;">Total Subtotal</td>
+                        <td style="text-align:right; font-weight:bold;">
+                            Rp {{ number_format($totalLayanan) }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
             <hr style="border-top: 1px dashed #000;">
 
-            <!-- Total -->
+<!-- BIAYA ANTAR (SELALU TAMPIL) -->
+<table class="w-100 mb-2" style="font-size: 13px;">
+    <tbody>
+        <tr>
+            <td style="text-align:left;">Antar Jemput</td>
+            <td style="text-align:center;">
+                {{ $transaksi->jarak_km ? rtrim(rtrim(number_format($transaksi->jarak_km, 2, ',', ''), '0'), ',') . ' km' : '-' }}
+            </td>
+            <td style="text-align:right;">
+                Rp {{ number_format($biayaAntar) }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<hr style="border-top: 1px dashed #000;">
+
+<!-- TOTAL AKHIR DAN TOTAL DIBAYAR (SELALU TAMPIL BIAYA ANTAR) -->
+<table class="w-100" style="font-size: 13px;">
+    <tr>
+        <td style="text-align:left;">Total Layanan</td>
+        <td style="text-align:right;">Rp {{ number_format($totalLayanan) }}</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:left;">Biaya Antar Jemput</td>
+        <td style="text-align:right;">Rp {{ number_format($biayaAntar) }}</td>
+    </tr>
+
+    <tr>
+        <td style="text-align:left; font-weight:bold;">Total Akhir</td>
+        <td style="text-align:right; font-weight:bold;">
+            Rp {{ number_format($totalAkhir) }}
+        </td>
+    </tr>
+</table>
+
+
+            <hr style="border-top: 1px dashed #000;">
+
+            <!-- TOTAL AKHIR DAN TOTAL DIBAYAR -->
             <table class="w-100" style="font-size: 13px;">
                 <tr>
-                    <td style="text-align:left;">Total Layanan</td>
-                    <td style="text-align:right;">Rp {{ number_format($transaksi->detailTransaksi->sum('subtotal')) }}</td>
-                </tr>
-                @if($transaksi->biaya_antar > 0)
-                    <tr>
-                        <td style="text-align:left;">Biaya Antar</td>
-                        <td style="text-align:right;">Rp {{ number_format($transaksi->biaya_antar) }}</td>
-                    </tr>
-                @endif
-                <tr>
-                    <td style="text-align:left;"><strong>Total Bayar</strong></td>
-                    <td style="text-align:right;"><strong>Rp {{ number_format($transaksi->total) }}</strong></td>
+                    <td style="text-align:left;">Total Dibayar</td>
+                    <td style="text-align:right;">Rp {{ number_format($transaksi->total) }}</td>
                 </tr>
             </table>
 
             <hr style="border-top: 1px dashed #000;">
-
-            <!-- Pembayaran -->
+            
+            <!-- PEMBAYARAN -->
             <div style="font-size: 13px;">
-                <p class="mb-1">Metode Pembayaran : <strong>{{ ucfirst($transaksi->metode_pembayaran) }}</strong></p>
-                <p class="mb-0">Status Pembayaran : <strong>{{ ucfirst($transaksi->status_pembayaran) }}</strong></p>
+                <p class="mb-1">Metode Pembayaran :
+                    <strong>{{ ucfirst($transaksi->metode_pembayaran ?? 'Belum dipilih') }}</strong>
+                </p>
+                <p class="mb-0">Status Pembayaran :
+                    <strong>{{ ucfirst($transaksi->status_pembayaran) }}</strong>
+                </p>
             </div>
 
-            <!-- Footer -->
             <div class="text-center mt-3" style="font-size: 13px;">
                 <p class="mb-0">*** Terima Kasih Telah Menggunakan Layanan Kami ***</p>
                 <p class="mb-0">~ Semoga Hari Anda Menyenangkan ~</p>
@@ -105,14 +157,11 @@
     </div>
 
     <div class="text-center mt-4 d-print-none">
-        <button onclick="window.print()" class="btn px-5 py-2 me-2 text-white"
-            style="background: linear-gradient(90deg, #8b3dff, #e056fd); border: none; border-radius: 8px;">
-            <i class="fas fa-print me-1"></i> Cetak
+        <button onclick="window.print()" class="btn btn-secondary me-2">
+            <i class="fas fa-print"></i> Cetak
         </button>
-
-        <a href="{{ route('customer.pesanan.index') }}" class="btn px-5 py-2 text-white"
-            style="background: linear-gradient(90deg, #e056fd, #8b3dff); border: none; border-radius: 8px;">
-            <i class="fas fa-arrow-left me-1"></i> Kembali
+        <a href="{{ route('admin.pesanan.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali
         </a>
     </div>
 
@@ -124,7 +173,6 @@
                 background: white;
             }
 
-            /* Hanya area struk yang ditampilkan */
             #print-area {
                 display: block !important;
                 position: absolute;
@@ -138,7 +186,6 @@
                 background: white;
             }
 
-            /* Sembunyikan semua elemen selain #print-area */
             body * {
                 visibility: hidden;
             }
@@ -148,7 +195,6 @@
                 visibility: visible;
             }
 
-            /* Sembunyikan tombol dan layout admin */
             .navbar,
             .sidebar,
             .footer,
@@ -156,7 +202,6 @@
                 display: none !important;
             }
 
-            /* Atur ukuran kertas (seperti nota kasir 80mm) */
             @page {
                 size: 80mm auto;
                 margin: 0;

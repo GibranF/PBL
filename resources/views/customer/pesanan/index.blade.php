@@ -195,6 +195,11 @@
                                                 @else
                                                     <span class="text-muted">Menunggu Selesai</span>
                                                 @endif
+                                                
+                                                <a href="{{ route('customer.pesanan.detail', $trx->id_transaksi) }}"
+                                                class="btn btn-sm btn-outline-secondary px-3 me-1">
+                                                <i class="fas fa-eye"></i>Lihat Detail
+                                            </a>
                                             </td>
 
                                         </tr>
@@ -216,96 +221,103 @@
         </div>
     </section>
 @endsection
-
-@section('scripts')
-    <!-- Tambahkan SweetAlert2 -->
+@push('scripts')
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
+        console.log('✅ JavaScript loaded!');
+        
         document.addEventListener('DOMContentLoaded', function () {
-            // Event listener untuk tombol "Bayar Sekarang"
-            document.querySelectorAll('.pay-now').forEach(button => {
+            console.log('✅ DOM loaded!');
+            
+            const payButtons = document.querySelectorAll('.pay-now');
+            const cancelButtons = document.querySelectorAll('.cancel-btn');
+            
+            console.log('🔍 Pay buttons:', payButtons.length);
+            console.log('🔍 Cancel buttons:', cancelButtons.length);
+            
+            // ========== HANDLER BAYAR ==========
+            payButtons.forEach(button => {
                 button.addEventListener('click', function (e) {
                     e.preventDefault();
+                    console.log('🎯 Tombol Bayar diklik!');
+                    
                     const transaksiId = this.getAttribute('data-transaksi-id');
-                    const paymentUrl = "{{ route('customer.pembayaran.create', ['id_transaksi' => ':id']) }}".replace(':id', transaksiId);
-
+                    const paymentUrl = "{{ url('customer/pembayaran/create') }}/" + transaksiId;
+                    
                     Swal.fire({
                         title: 'Konfirmasi Pembayaran',
-                        text: `Apakah Anda ingin melanjutkan pembayaran untuk pesanan #${transaksiId}?`,
+                        text: `Lanjutkan pembayaran pesanan #${transaksiId}?`,
                         icon: 'question',
                         showCancelButton: true,
                         confirmButtonColor: '#28a745',
-                        cancelButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
                         confirmButtonText: 'Ya, bayar!',
-                        cancelButtonText: 'Tidak'
+                        cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Arahkan ke halaman pembayaran
                             window.location.href = paymentUrl;
                         }
                     });
                 });
             });
 
-            // Event listener untuk tombol "Batalkan"
-            document.querySelectorAll('.cancel-btn').forEach(button => {
+            // ========== HANDLER BATALKAN ==========
+            cancelButtons.forEach(button => {
                 button.addEventListener('click', function (e) {
                     e.preventDefault();
+                    console.log('🎯 Tombol Batalkan diklik!');
+                    
                     const transaksiId = this.getAttribute('data-transaksi-id');
                     const form = document.getElementById(`cancel-form-${transaksiId}`);
 
+                    if (!form) {
+                        Swal.fire('Error', 'Form tidak ditemukan!', 'error');
+                        return;
+                    }
+
                     Swal.fire({
                         title: 'Yakin ingin membatalkan?',
-                        text: "Pesanan akan dibatalkan permanen!",
+                        html: `Pesanan <strong>#${transaksiId}</strong> akan dibatalkan permanen!`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
                         confirmButtonText: 'Ya, batalkan',
                         cancelButtonText: 'Tidak'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Disable tombol supaya tidak double submit
                             button.disabled = true;
+                            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membatalkan...';
 
                             fetch(form.action, {
-                                method: "DELETE",
+                                method: "POST",
                                 headers: {
                                     "X-CSRF-TOKEN": "{{ csrf_token() }}",
                                     "Accept": "application/json",
                                     "Content-Type": "application/json",
                                 },
+                                body: JSON.stringify({ _method: "DELETE" })
                             })
-                                .then(res => {
-                                    if (!res.ok) {
-                                        return res.text().then(text => {
-                                            throw new Error(`HTTP ${res.status} - Response: ${text}`);
-                                        });
-                                    }
-                                    return res.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Berhasil',
-                                            text: data.message || 'Pesanan berhasil dibatalkan.',
-                                            confirmButtonText: 'OK'
-                                        }).then(() => {
-                                            window.location.href = "{{ route('customer.pesanan.index') }}";
-                                        });
-                                    } else {
-                                        throw new Error(data.message || 'Gagal membatalkan pesanan.');
-                                    }
-                                })
-                                .catch(err => {
-                                    Swal.fire('Error', err.message, 'error');
-                                    button.disabled = false;
-                                });
+                            .then(res => res.ok ? res.json() : Promise.reject('HTTP Error'))
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Berhasil!', data.message, 'success')
+                                        .then(() => window.location.reload());
+                                } else {
+                                    throw new Error(data.message);
+                                }
+                            })
+                            .catch(err => {
+                                Swal.fire('Gagal!', err.message || err, 'error');
+                                button.disabled = false;
+                                button.innerHTML = '<i class="fas fa-times"></i> <span>Batalkan</span>';
+                            });
                         }
                     });
                 });
             });
         });
     </script>
-@endsection
+@endpush

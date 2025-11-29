@@ -1,6 +1,14 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+    .harga-display[readonly],
+    #total[readonly] {
+        background-color: #ffffff !important;
+        opacity: 1 !important;
+        color: #000 !important;
+    }
+</style>
     <div class="container-fluid py-4">
         <h2 class="mb-4 text-primary">Buat Pesanan Baru (Admin)</h2>
 
@@ -35,8 +43,7 @@
                 <div class="col-12">
                     <label for="alamat" class="form-label fw-semibold text-primary">Alamat</label>
                     <textarea name="alamat" id="alamat" rows="3" class="form-control form-control-lg rounded-2"
-                        style="border-color: pink;" placeholder="Masukkan alamat lengkap"
-                        required>{{ old('alamat') }}</textarea>
+                        style="border-color: pink;" placeholder="Masukkan alamat lengkap" required>{{ old('alamat') }}</textarea>
                 </div>
             </div>
 
@@ -72,21 +79,22 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-primary">Jumlah (Kg/M²/Pcs)</label>
                             <input type="number" name="layanan[0][dimensi]"
-                                class="form-control form-control-lg rounded-2 dimensi" style="border-color: pink;" step="0.01"
-                                min="0.01" required placeholder="Contoh: 1.5" />
+                                class="form-control form-control-lg rounded-2 dimensi" style="border-color: pink;"
+                                step="0.01" min="0.01" required placeholder="Contoh: 1.5" />
                             <small class="text-muted">Gunakan titik (.) sebagai pemisah desimal</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-primary">Satuan</label>
-                            <input type="text" name="layanan[0][satuan]" class="form-control form-control-lg rounded-2 satuan"
-                                style="border-color: pink;" readonly>
+                            <input type="text" name="layanan[0][satuan]"
+                                class="form-control form-control-lg rounded-2 satuan" style="border-color: pink;" readonly>
                         </div>
 
                     </div>
                 @endif
             </div>
 
-            <button type="button" id="add-layanan" class="btn btn-outline-primary rounded-2 my-3" {{ $layanan->isEmpty() ? 'disabled' : '' }}>
+            <button type="button" id="add-layanan" class="btn btn-outline-primary rounded-2 my-3"
+                {{ $layanan->isEmpty() ? 'disabled' : '' }}>
                 <i class="bi bi-plus-lg"></i> Tambah Layanan
             </button>
 
@@ -94,12 +102,13 @@
                 <div class="col-md-6">
                     <label for="antar_jemput" class="form-label fw-semibold text-primary">Layanan Antar Jemput</label>
                     <select name="antar_jemput" id="antar_jemput" class="form-select form-select-lg rounded-2"
-                        style="border-color: pink;">
+                        style="border-color: pink;" required>
                         <option value="no">Tidak</option>
-                        <option value="yes">Ya</option>
+                        <option value="normal">Antar & Jemput (Harga Normal)</option>
+                        <option value="antar">Antar Saja (½ Harga)</option>
+                        <option value="jemput">Jemput Saja (½ Harga)</option>
                     </select>
                 </div>
-
                 <div class="col-md-6 d-flex align-items-center">
                     <a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=Istana+Laundry+Banyuwangi"
                         target="_blank" class="text-decoration-none text-primary fw-semibold">
@@ -107,11 +116,10 @@
                     </a>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6" id="jarak_wrapper" style="display:none;">
                     <label for="jarak_km" class="form-label fw-semibold text-primary">Jarak (Km)</label>
                     <input type="number" name="jarak_km" id="jarak_km" class="form-control form-control-lg rounded-2"
-                        style="border-color: pink;" step="0.1" min="0" value="{{ old('jarak_km') }}"
-                        placeholder="Contoh: 5.2" />
+                        style="border-color: pink;" placeholder="Contoh: 4" min="0" step="0.1" />
                 </div>
             </div>
 
@@ -119,8 +127,8 @@
                 <label for="total" class="form-label fw-semibold text-primary">Total Biaya</label>
                 <input type="text" id="total" class="form-control form-control-lg rounded-2 bg-light"
                     style="border-color: pink;" readonly value="Rp 0" />
+                <input type="hidden" id="biaya_antar" name="biaya_antar" value="0">
             </div>
-
             <fieldset class="mt-4">
                 <legend class="fw-semibold text-primary mb-3">Pilihan Pembayaran</legend>
                 <label>Pilihan Pembayaran</label>
@@ -147,136 +155,168 @@
     </div>
 
     {{-- SCRIPT TETAP SAMA --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const layananContainer = document.getElementById('layanan-container');
-            const addLayananBtn = document.getElementById('add-layanan');
-            const totalInput = document.getElementById('total');
+{{-- SCRIPT TETAP SAMA --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const layananContainer = document.getElementById('layanan-container');
+        const addLayananBtn = document.getElementById('add-layanan');
+        const totalInput = document.getElementById('total');
+        const biayaAntarInput = document.getElementById('biaya_antar'); // ← tambah di sini
 
-            if (!layananContainer || !addLayananBtn || !totalInput) return;
+        if (!layananContainer || !addLayananBtn || !totalInput) return;
 
-            function setupLayananEvents(container) {
-                const layananSelect = container.querySelector('.layanan');
-                const hargaInput = container.querySelector('.harga');
-                const hargaDisplay = container.querySelector('.harga-display');
-                const dimensiInput = container.querySelector('.dimensi');
+        function setupLayananEvents(container) {
+            const layananSelect = container.querySelector('.layanan');
+            const hargaInput = container.querySelector('.harga');
+            const hargaDisplay = container.querySelector('.harga-display');
+            const dimensiInput = container.querySelector('.dimensi');
 
-                if (layananSelect && hargaInput && hargaDisplay && dimensiInput) {
-                    layananSelect.addEventListener('change', () => {
-                        const option = layananSelect.options[layananSelect.selectedIndex];
-                        const price = parseFloat(option.getAttribute('data-price')) || 0;
-                        hargaInput.value = price;
-                        hargaDisplay.value = price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
-                        hitungTotal();
+            if (layananSelect && hargaInput && hargaDisplay && dimensiInput) {
+                layananSelect.addEventListener('change', () => {
+                    const option = layananSelect.options[layananSelect.selectedIndex];
+                    const price = parseFloat(option.getAttribute('data-price')) || 0;
+                    hargaInput.value = price;
+                    hargaDisplay.value = price.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR'
                     });
-
-                    dimensiInput.addEventListener('input', hitungTotal);
-                }
-            }
-
-            function hitungTotal() {
-                let total = 0;
-                const layananBoxes = layananContainer.querySelectorAll('.layanan-box');
-
-                layananBoxes.forEach(box => {
-                    const harga = parseFloat(box.querySelector('.harga').value) || 0;
-                    const dimensi = parseFloat(box.querySelector('.dimensi').value) || 0;
-                    total += harga * dimensi;
-                });
-
-                const antarJemput = document.getElementById('antar_jemput').value;
-                const jarakKm = parseFloat(document.getElementById('jarak_km').value) || 0;
-
-                if (antarJemput === 'yes' && jarakKm > 0) {
-                    total += jarakKm * 5000;
-                }
-
-                totalInput.value = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
-            }
-
-            addLayananBtn.addEventListener('click', () => {
-                const index = layananContainer.querySelectorAll('.layanan-box').length;
-                const newLayanan = document.createElement('div');
-                newLayanan.classList.add('layanan-box', 'col-md-6');
-
-                newLayanan.innerHTML = `
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold text-primary">Pilih Layanan</label>
-                                    <select name="layanan[${index}][id_layanan]" class="form-select form-select-lg rounded-2 layanan" style="border-color: pink;" required>
-                                        <option value="" selected disabled>Pilih layanan</option>
-                                        @foreach ($layanan as $service)
-                                            <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}">{{ $service->nama_layanan }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold text-primary">Harga</label>
-                                    <input type="text" class="form-control form-control-lg rounded-2 harga-display" readonly placeholder="Rp 0" style="border-color: pink;" />
-                                    <input type="hidden" name="layanan[${index}][harga]" class="harga" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold text-primary">Jumlah (Kg/M²/Pcs)</label>
-                                    <input type="number" name="layanan[${index}][dimensi]" class="form-control form-control-lg rounded-2 dimensi" style="border-color: pink;" step="0.01" min="0.01" required placeholder="Contoh: 1.5" />
-                                    <small class="text-muted">Gunakan titik (.) sebagai pemisah desimal</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold text-primary">Satuan</label>
-                                    <select name="layanan[${index}][satuan]" class="form-select form-select-lg rounded-2 satuan" style="border-color: pink;" required>
-                                        <option value="kg">Kilogram</option>
-                                        <option value="m2">Meter persegi</option>
-                                        <option value="pcs">Pcs</option>
-                                    </select>
-                                </div>
-                                <button type="button" class="btn btn-outline-danger btn-sm rounded-2 remove-layanan">
-                                    <i class="bi bi-x-lg"></i> Hapus Layanan
-                                </button>
-                            `;
-
-                layananContainer.appendChild(newLayanan);
-                setupLayananEvents(newLayanan);
-
-                newLayanan.querySelector('.remove-layanan').addEventListener('click', () => {
-                    newLayanan.remove();
                     hitungTotal();
                 });
+
+                dimensiInput.addEventListener('input', hitungTotal);
+            }
+        }
+
+        function hitungTotal() {
+            let total = 0;
+            let biayaJemput = 0;
+            
+            const layananBoxes = layananContainer.querySelectorAll('.layanan-box');
+
+            layananBoxes.forEach(box => {
+                const harga = parseFloat(box.querySelector('.harga').value) || 0;
+                const dimensi = parseFloat(box.querySelector('.dimensi').value) || 0;
+                total += harga * dimensi;
             });
 
-            layananContainer.querySelectorAll('.layanan-box').forEach(setupLayananEvents);
+            const antarJemput = document.getElementById('antar_jemput').value;
+            const jarakKm = parseFloat(document.getElementById('jarak_km').value) || 0;
 
-            document.getElementById('antar_jemput').addEventListener('change', hitungTotal);
-            document.getElementById('jarak_km').addEventListener('input', hitungTotal);
+            // Jika antar jemput = no --> biaya jarak tidak dihitung
+            if (antarJemput !== 'no' && jarakKm > 0) {
+                let jarakBayar = Math.max(0, jarakKm - 3); // 3 km free
 
-            hitungTotal();
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+                if (antarJemput === 'normal') {
+                    biayaJemput = jarakBayar * 5000;
+                } else if (antarJemput === 'antar' || antarJemput === 'jemput') {
+                    biayaJemput = (jarakBayar * 5000) / 2;
+                }
 
-            function updateSatuan(selectElement) {
-                let satuan = selectElement.options[selectElement.selectedIndex].dataset.satuan;
-                let satuanInput = selectElement.closest('.layanan-box').querySelector('.satuan');
-                satuanInput.value = satuan || '-';
+                total += biayaJemput;
             }
 
-            // Untuk item layanan pertama
-            document.querySelectorAll('.layanan').forEach(function (select) {
-                updateSatuan(select);
-                select.addEventListener('change', function () {
-                    updateSatuan(this);
-                });
-            });
+            // ⬅ SIMPAN biaya antar ke input hidden
+            biayaAntarInput.value = biayaJemput;
 
-            // Untuk layanan tambahan
-            document.getElementById('add-layanan').addEventListener('click', function () {
-                setTimeout(() => {
-                    document.querySelectorAll('.layanan').forEach(function (select) {
-                        select.addEventListener('change', function () {
-                            updateSatuan(this);
-                        });
-                    });
-                }, 300);
+            totalInput.value = total.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
             });
+        }
 
+        addLayananBtn.addEventListener('click', () => {
+            const index = layananContainer.querySelectorAll('.layanan-box').length;
+            const newLayanan = document.createElement('div');
+            newLayanan.classList.add('layanan-box', 'col-md-6');
+
+            newLayanan.innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-primary">Pilih Layanan</label>
+                    <select name="layanan[${index}][id_layanan]" class="form-select form-select-lg rounded-2 layanan" style="border-color: pink;" required>
+                        <option value="" selected disabled>Pilih layanan</option>
+                        @foreach ($layanan as $service)
+                            <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}" data-satuan="{{ $service->satuan }}">{{ $service->nama_layanan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-primary">Harga</label>
+                    <input type="text" class="form-control form-control-lg rounded-2 harga-display" readonly placeholder="Rp 0" style="border-color: pink;" />
+                    <input type="hidden" name="layanan[${index}][harga]" class="harga" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-primary">Jumlah (Kg/M²/Pcs)</label>
+                    <input type="number" name="layanan[${index}][dimensi]" class="form-control form-control-lg rounded-2 dimensi" step="0.01" min="0.01" required style="border-color: pink;" placeholder="Contoh: 1.5" />
+                    <small class="text-muted">Gunakan titik (.) sebagai pemisah desimal</small>
+                </div>
+                <div class="mb-3">
+    <label class="form-label fw-semibold text-primary">Satuan</label>
+    <input type="text" name="layanan[${index}][satuan]"
+        class="form-control form-control-lg rounded-2 satuan" 
+        style="border-color: pink;" readonly>
+</div>
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-2 remove-layanan">
+                    <i class="bi bi-x-lg"></i> Hapus Layanan
+                </button>
+            `;
+
+            layananContainer.appendChild(newLayanan);
+            setupLayananEvents(newLayanan);
+
+            newLayanan.querySelector('.remove-layanan').addEventListener('click', () => {
+                newLayanan.remove();
+                hitungTotal();
+            });
         });
-    </script>
+
+        layananContainer.querySelectorAll('.layanan-box').forEach(setupLayananEvents);
+
+        document.getElementById('antar_jemput').addEventListener('change', hitungTotal);
+        document.getElementById('jarak_km').addEventListener('input', hitungTotal);
+
+        hitungTotal();
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function updateSatuan(selectElement) {
+            let satuan = selectElement.options[selectElement.selectedIndex].dataset.satuan;
+            let satuanInput = selectElement.closest('.layanan-box').querySelector('.satuan');
+            satuanInput.value = satuan || '-';
+        }
+
+        document.querySelectorAll('.layanan').forEach(function(select) {
+            updateSatuan(select);
+            select.addEventListener('change', function() {
+                updateSatuan(this);
+            });
+        });
+
+        document.getElementById('add-layanan').addEventListener('click', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.layanan').forEach(function(select) {
+                    select.addEventListener('change', function() {
+                        updateSatuan(this);
+                    });
+                });
+            }, 300);
+        });
+    });
+</script>
+
+<script>
+    // SHOW / HIDE JARAK
+    document.getElementById('antar_jemput').addEventListener('change', function() {
+        let value = this.value;
+        let jarakWrapper = document.getElementById('jarak_wrapper');
+
+        if (value === 'no') {
+            jarakWrapper.style.display = 'none';
+            document.getElementById('jarak_km').value = '';
+        } else {
+            jarakWrapper.style.display = 'block';
+        }
+    });
+</script>
 @endsection

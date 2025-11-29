@@ -54,26 +54,22 @@
                         <div class="service-card">
                             <div class="form-row">
                                 <div class="form-group">
-    <label class=>Pilih Layanan</label>
-    <select name="layanan[0][id_layanan]" 
-        class="form-select form-select-lg rounded-2 layanan" required>
+                                    <label>Pilih Layanan</label>
+                                    <select name="layanan[0][id_layanan]"
+                                        class="form-select form-select-lg rounded-2 service-select" required>
+                                        <option value="" disabled {{ $selectedLayanan ? '' : 'selected' }}>
+                                            Pilih layanan
+                                        </option>
 
-    <option value="" disabled {{ $selectedLayanan ? '' : 'selected' }}>
-        Pilih layanan
-    </option>
-
-    @foreach ($layanan as $service)
-        <option 
-            value="{{ $service->id_layanan }}"
-            data-satuan="{{ $service->satuan }}"
-            data-price="{{ $service->harga }}"
-            {{ ($selectedLayanan == $service->id_layanan) ? 'selected' : '' }}
-        >
-            {{ $service->nama_layanan }} ({{ $service->satuan }})
-        </option>
-    @endforeach
-</select>
-</div>
+                                        @foreach ($layanan as $service)
+                                            <option value="{{ $service->id_layanan }}" data-satuan="{{ $service->satuan }}"
+                                                data-price="{{ $service->harga }}"
+                                                {{ $selectedLayanan == $service->id_layanan ? 'selected' : '' }}>
+                                                {{ $service->nama_layanan }} ({{ $service->satuan }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
                                 <div class="form-group">
                                     <label>Harga</label>
@@ -90,10 +86,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Satuan</label>
-    <input type="text" 
-           name="layanan[0][satuan]" 
-           class="form-control form-control-lg rounded-2 satuan" 
-           readonly>
+                                    <input type="text" name="layanan[0][satuan]"
+                                        class="form-control form-control-lg rounded-2 satuan" readonly>
                                 </div>
                             </div>
                         </div>
@@ -112,15 +106,17 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Pilihan Antar Jemput</label>
-                        <select name="antar_jemput" class="form-control">
+                        <select name="antar_jemput" class="form-control" id="antar-jemput-select">
                             <option value="no">Tidak</option>
-                            <option value="yes">Ya</option>
+                            <option value="antar">Antar Saja</option>
+                            <option value="jemput">Jemput Saja</option>
+                            <option value="yes">Antar & Jemput</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="jarak-group">
                         <label>Jarak (Km)</label>
-                        <input type="number" name="jarak_km" class="form-control" step="0.1"
-                            value="{{ old('jarak_km') }}">
+                        <input type="number" name="jarak_km" id="jarak-input" class="form-control" step="0.1"
+                            value="{{ old('jarak_km', 0) }}">
                         <small class="form-text">
                             <a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=Istana+Laundry+Banyuwangi"
                                 target="_blank">
@@ -185,7 +181,6 @@
     <style>
         body {
             padding-top: 70px;
-            /* sesuaikan dengan tinggi navbar */
         }
 
         .order-form {
@@ -225,8 +220,8 @@
             padding: 12px 15px;
             border: 1px solid #e0e0e0;
             transition: all 0.3s ease;
-            width: 100%; /* Menambahkan ini untuk memastikan input penuh */
-            box-sizing: border-box; /* Pastikan padding tidak menambah lebar total */
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .form-control:focus {
@@ -271,7 +266,6 @@
 
         .payment-option input[type="radio"] {
             margin-right: 15px;
-            /* style default radio */
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -282,7 +276,7 @@
             outline: none;
             cursor: pointer;
             position: relative;
-            flex-shrink: 0; /* Mencegah radio mengecil */
+            flex-shrink: 0;
         }
 
         .payment-option input[type="radio"]:checked {
@@ -318,7 +312,7 @@
             background: #f0f0f0;
         }
 
-        .payment-option input:checked + label {
+        .payment-option input:checked+label {
             background: #7d2ae8;
             color: white;
         }
@@ -338,7 +332,7 @@
             font-size: 0.85rem;
         }
 
-        .payment-option input:checked + label small {
+        .payment-option input:checked+label small {
             opacity: 0.9;
         }
 
@@ -356,8 +350,8 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none; /* Untuk tombol yang juga bisa jadi link */
-            color: white; /* Default color untuk tombol */
+            text-decoration: none;
+            color: white;
         }
 
         .btn-primary {
@@ -370,7 +364,7 @@
         }
 
         .btn-secondary {
-            background-color: #6c757d; /* Warna abu-abu */
+            background-color: #6c757d;
             border: none;
             color: white;
         }
@@ -378,16 +372,17 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+
         .btn-danger {
-            background-color: #dc3545; /* Warna merah */
+            background-color: #dc3545;
             border: none;
             color: white;
-            padding: 8px 15px; /* Lebih kecil dari btn utama */
+            padding: 8px 15px;
         }
+
         .btn-danger:hover {
             background-color: #c82333;
         }
-
 
         .empty-state {
             text-align: center;
@@ -403,32 +398,37 @@
             color: #ccc;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
                 gap: 15px;
             }
+
             .form-row .form-group {
                 min-width: 100%;
             }
+
             .payment-option label {
                 flex-direction: column;
                 align-items: flex-start;
                 text-align: left;
                 padding: 10px;
             }
+
             .payment-option i {
                 margin-right: 0;
                 margin-bottom: 5px;
             }
+
             .payment-option small {
                 margin-left: 0;
                 display: block;
             }
+
             .form-actions {
                 text-align: center;
             }
+
             .btn-primary {
                 width: 100%;
             }
@@ -441,98 +441,116 @@
             const addServiceBtn = document.getElementById('add-service');
             const totalDisplay = document.getElementById('total-display');
             const totalInput = document.getElementById('total-input');
+            const antarSelect = document.getElementById('antar-jemput-select');
+            const jarakInput = document.getElementById('jarak-input');
+            const jarakGroup = document.getElementById('jarak-group');
 
-            // Fungsi untuk menghitung total biaya antar jemput
-            function hitungBiayaAntarJemput(jarak_km) {
+            // Fungsi untuk menghitung biaya antar jemput
+            function hitungBiayaAntarJemput(jarak_km, jenis) {
+                let biayaFull = 0;
+
                 if (jarak_km <= 3) {
-                    return 0; // Gratis untuk 3 KM pertama
+                    biayaFull = 0; // Gratis 3 km pertama
                 } else {
-                    return (jarak_km - 3) * 5000; // Rp 5.000 per KM setelah 3 KM pertama
+                    biayaFull = (jarak_km - 3) * 5000; // Rp 5000 per km setelah 3 km
                 }
+
+                // Harga setengah jika antar saja atau jemput saja
+                if (jenis === 'antar' || jenis === 'jemput') {
+                    return biayaFull / 2;
+                }
+
+                // Harga penuh jika antar & jemput
+                if (jenis === 'yes') {
+                    return biayaFull;
+                }
+
+                return 0; // Jika tidak
+            }
+
+            // Format mata uang
+            function formatCurrency(amount) {
+                return 'Rp ' + Number(amount).toLocaleString('id-ID');
             }
 
             // Inisialisasi layanan pertama jika ada
-            if (layananContainer.querySelector('.service-card')) {
+            if (layananContainer && layananContainer.querySelector('.service-card')) {
                 setupServiceEvents(layananContainer.querySelector('.service-card'));
-                calculateTotal(); // Hitung total awal
+                calculateTotal();
             }
 
             // Tambah layanan baru
-            addServiceBtn.addEventListener('click', function() {
-                const index = layananContainer.querySelectorAll('.service-card').length;
-                const newService = document.createElement('div');
-                newService.className = 'service-card';
-                newService.innerHTML = `
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Pilih Layanan</label>
-                            <select name="layanan[${index}][id_layanan]" class="form-control service-select" required>
-                                <option value="">Pilih Layanan</option>
-                                @foreach ($layanan as $service)
-                                    <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}" data-satuan="{{ $service->satuan }}">
-                                        {{ $service->nama_layanan }}
-                                    </option>
-                                @endforeach
-                            </select>
+            if (addServiceBtn) {
+                addServiceBtn.addEventListener('click', function() {
+                    const index = layananContainer.querySelectorAll('.service-card').length;
+                    const newService = document.createElement('div');
+                    newService.className = 'service-card';
+                    newService.innerHTML = `
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Pilih Layanan</label>
+                                <select name="layanan[${index}][id_layanan]" class="form-control service-select" required>
+                                    <option value="">Pilih Layanan</option>
+                                    @foreach ($layanan as $service)
+                                        <option value="{{ $service->id_layanan }}" data-price="{{ $service->harga }}" data-satuan="{{ $service->satuan }}">
+                                            {{ $service->nama_layanan }} ({{ $service->satuan }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Harga</label>
+                                <input type="text" class="form-control price-display" readonly>
+                                <input type="hidden" name="layanan[${index}][harga]" class="price-input">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Harga</label>
-                            <input type="text" class="form-control price-display" readonly>
-                            <input type="hidden" name="layanan[${index}][harga]" class="price-input">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Jumlah/Dimensi</label>
+                                <input type="number" name="layanan[${index}][dimensi]" class="form-control quantity-input"
+                                    step="0.01" required placeholder="Contoh: 1.5">
+                                <small class="form-text">Gunakan titik (.)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Satuan</label>
+                                <input type="text" name="layanan[${index}][satuan]" class="form-control satuan" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Jumlah/Dimensi</label>
-                            <input type="number" name="layanan[${index}][dimensi]" class="form-control quantity-input"
-                                step="0.01" required placeholder="Contoh: 1.5">
-                            <small class="form-text">Gunakan titik (.)</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Satuan</label>
-                            <select name="layanan[${index}][satuan]" class="form-control unit-select" required>
-                                <option value="kg">Kilogram</option>
-                                <option value="m2">Meter persegi</option>
-                                <option value="pcs">Pcs</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-danger remove-service">
-                        <i class="fas fa-trash"></i> Hapus
-                    </button>
-                `;
-                layananContainer.appendChild(newService);
-                setupServiceEvents(newService);
-            });
+                        <button type="button" class="btn btn-sm btn-danger remove-service">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    `;
+                    layananContainer.appendChild(newService);
+                    setupServiceEvents(newService);
+                });
+            }
 
-            // Setup event listeners untuk setiap card layanan baru atau yang sudah ada
+            // Setup event listeners untuk setiap card layanan
             function setupServiceEvents(card) {
                 const select = card.querySelector('.service-select');
                 const priceDisplay = card.querySelector('.price-display');
                 const priceInput = card.querySelector('.price-input');
                 const quantityInput = card.querySelector('.quantity-input');
-                const unitSelect = card.querySelector('.unit-select'); // Tambahkan ini jika satuan harus otomatis berdasarkan layanan
+                const satuanInput = card.querySelector('.satuan');
 
-                // Fungsi untuk memperbarui harga dan satuan saat layanan dipilih
-                select.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-                    // Ambil satuan dari data-satuan di option, jika ada
-                    const defaultUnit = selectedOption.getAttribute('data-satuan') || 'kg';
+                if (select) {
+                    select.addEventListener('change', function() {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+                        const defaultUnit = selectedOption.getAttribute('data-satuan') || '-';
 
-                    priceInput.value = price;
-                    priceDisplay.value = formatCurrency(price);
-                    unitSelect.value = defaultUnit; // Set satuan otomatis
-                    calculateTotal();
-                });
+                        if (priceInput) priceInput.value = price;
+                        if (priceDisplay) priceDisplay.value = formatCurrency(price);
+                        if (satuanInput) satuanInput.value = defaultUnit;
 
-                // Perbarui total saat kuantitas berubah
-                quantityInput.addEventListener('input', calculateTotal);
-                
-                // Tambahkan event listener untuk unitSelect jika perlu diperbarui
-                unitSelect.addEventListener('change', calculateTotal);
+                        calculateTotal();
+                    });
+                }
 
-                // Hapus layanan
+                if (quantityInput) {
+                    quantityInput.addEventListener('input', calculateTotal);
+                }
+
                 const removeBtn = card.querySelector('.remove-service');
                 if (removeBtn) {
                     removeBtn.addEventListener('click', function() {
@@ -545,85 +563,65 @@
                     });
                 }
 
-                // Pemicu event change secara manual untuk menginisialisasi harga dan satuan
-                // pada layanan yang sudah ada atau yang baru ditambahkan
-                if (select.value) { // Jika ada layanan yang terpilih (misal old() value)
-                    select.dispatchEvent(new Event('change'));
+                // Trigger awal jika ada select yang sudah terpilih
+                if (select && select.value) {
+                    setTimeout(() => select.dispatchEvent(new Event('change')), 10);
                 } else {
-                    // Jika belum ada layanan terpilih, atur harga dan satuan ke 0/default
-                    priceInput.value = 0;
-                    priceDisplay.value = formatCurrency(0);
-                    unitSelect.value = 'kg'; // Default awal
+                    if (priceInput) priceInput.value = 0;
+                    if (priceDisplay) priceDisplay.value = formatCurrency(0);
+                    if (satuanInput && !satuanInput.value) satuanInput.value = '-';
                 }
             }
 
             // Event listener untuk opsi antar jemput
-            document.querySelector('[name="antar_jemput"]').addEventListener('change', function() {
-                const jarakKmInput = document.querySelector('[name="jarak_km"]');
-                if (this.value === 'yes') {
-                    jarakKmInput.closest('.form-group').style.display = 'block';
-                    jarakKmInput.setAttribute('required', 'required');
-                } else {
-                    jarakKmInput.closest('.form-group').style.display = 'none';
-                    jarakKmInput.removeAttribute('required');
-                    jarakKmInput.value = 0; // Reset jarak_km jika tidak pakai antar jemput
-                }
-                calculateTotal();
-            });
+            if (antarSelect && jarakInput && jarakGroup) {
+                antarSelect.addEventListener('change', function() {
+                    if (this.value !== 'no') {
+                        jarakGroup.style.display = 'block';
+                        jarakInput.setAttribute('required', 'required');
+                    } else {
+                        jarakGroup.style.display = 'none';
+                        jarakInput.removeAttribute('required');
+                        jarakInput.value = 0;
+                    }
+                    calculateTotal();
+                });
 
-            // Event listener untuk input jarak_km
-            document.querySelector('[name="jarak_km"]').addEventListener('input', calculateTotal);
+                jarakInput.addEventListener('input', calculateTotal);
+
+                // Set initial visibility
+                setTimeout(() => antarSelect.dispatchEvent(new Event('change')), 10);
+            }
 
             // Fungsi utama untuk menghitung total keseluruhan
             function calculateTotal() {
                 let subtotalLayanan = 0;
 
-                // Hitung subtotal dari semua layanan
                 document.querySelectorAll('.service-card').forEach(card => {
-                    const price = parseFloat(card.querySelector('.price-input').value) || 0;
-                    const quantity = parseFloat(card.querySelector('.quantity-input').value) || 0;
+                    const price = parseFloat(card.querySelector('.price-input')?.value) || 0;
+                    const quantity = parseFloat(card.querySelector('.quantity-input')?.value) || 0;
                     subtotalLayanan += price * quantity;
                 });
 
                 let biayaAntar = 0;
-                const needsDelivery = document.querySelector('[name="antar_jemput"]').value === 'yes';
-                const distance = parseFloat(document.querySelector('[name="jarak_km"]').value) || 0;
+                const jenisAntar = antarSelect?.value || 'no';
+                const distance = parseFloat(jarakInput?.value) || 0;
 
-                if (needsDelivery) {
-                    biayaAntar = hitungBiayaAntarJemput(distance);
+                if (jenisAntar !== 'no') {
+                    biayaAntar = hitungBiayaAntarJemput(distance, jenisAntar);
                 }
 
                 const totalAkhir = subtotalLayanan + biayaAntar;
 
-                // Perbarui tampilan total
-                totalDisplay.textContent = formatCurrency(totalAkhir);
-                totalInput.value = totalAkhir; // Pastikan hidden input juga terupdate
+                if (totalDisplay) totalDisplay.textContent = formatCurrency(totalAkhir);
+                if (totalInput) totalInput.value = totalAkhir;
             }
 
-            // Fungsi untuk format mata uang
-            function formatCurrency(amount) {
-                return 'Rp ' + amount.toLocaleString('id-ID');
-            }
+            // Panggil setup untuk semua card yang sudah ada
+            document.querySelectorAll('.service-card').forEach(setupServiceEvents);
 
-            // Panggil calculateTotal() saat halaman dimuat untuk inisialisasi total
-            // dan mengatur tampilan jarak_km berdasarkan nilai default 'antar_jemput'
-            document.querySelector('[name="antar_jemput"]').dispatchEvent(new Event('change'));
+            // Panggil calculateTotal() saat halaman dimuat
+            setTimeout(calculateTotal, 20);
         });
     </script>
-    <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const layananSelect = document.querySelector(".layanan");
-    const satuanInput = document.querySelector(".satuan");
-
-    layananSelect.addEventListener("change", function () {
-        const satuan = this.options[this.selectedIndex].getAttribute("data-satuan");
-
-        if (satuan && satuan !== "") {
-            satuanInput.value = satuan;
-        } else {
-            satuanInput.value = "-";
-        }
-    });
-});
-</script>
 @endsection

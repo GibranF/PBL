@@ -63,114 +63,128 @@ class PesananAdminController extends Controller
         return view('admin.pesanan.buatpesanan', compact('user', 'layanan'));
     }
 
-    public function store(Request $request)
-    {
-        $user = Auth::user();
+public function store(Request $request)
+{
+    $user = Auth::user();
 
-        // Validasi input
-        $validated = $request->validate([
-            'nama_pelanggan' => 'required|string|max:255',
-            'nomor_hp' => 'required|string|max:15',
-            'alamat' => 'required|string|max:500',
-            'layanan' => 'required|array',
-            'layanan.*.id_layanan' => 'required|integer|exists:layanan,id_layanan',
-            'layanan.*.harga' => 'required|numeric|min:0',
-            'layanan.*.dimensi' => 'required|numeric|min:0.1|max:500',
-            'layanan.*.satuan' => 'required|string',
-            'antar_jemput' => 'nullable|in:yes,no',
-            'jarak_km' => 'nullable|numeric|min:0',
-            'pembayaran_option' => 'required|in:bayar_online,bayar_offline,bayar_nanti',
+    // Validasi input
+    $validated = $request->validate([
+        'nama_pelanggan' => 'required|string|max:255',
+        'nomor_hp' => 'required|string|max:15',
+        'alamat' => 'required|string|max:500',
+        'layanan' => 'required|array',
+        'layanan.*.id_layanan' => 'required|integer|exists:layanan,id_layanan',
+        'layanan.*.harga' => 'required|numeric|min:0',
+        'layanan.*.dimensi' => 'required|numeric|min:0.1|max:500',
+        'layanan.*.satuan' => 'required|string',
+        'antar_jemput' => 'required|in:no,normal,antar,jemput',
+        'jarak_km' => 'nullable|numeric|min:0',
+        'pembayaran_option' => 'required|in:bayar_online,bayar_offline,bayar_nanti',
+    ]);
+
+
+    DB::beginTransaction();
+    try {
+
+        // ============================
+        // HITUNG BIAYA ANTAR JEMPUT
+        // ============================
+        $biaya_antar = 0;
+        $jarak = floatval($request->jarak_km ?? 0);
+
+        if ($request->antar_jemput === 'normal') {
+            // Antar + jemput full price
+            $biaya_antar = $this->hitungBiayaAntarJemput($jarak);
+        } 
+        elseif ($request->antar_jemput === 'antar' || $request->antar_jemput === 'jemput') {
+            // 1 layanan -> 50%
+            $biaya_antar = $this->hitungBiayaAntarJemput($jarak) / 2;
+        }
+        // jika 'no', tetap 0
+
+
+        // ============================
+        // HITUNG TOTAL LAYANAN
+        // ============================
+        $totalLayanan = collect($request->layanan)
+            ->sum(fn($item) => $item['harga'] * $item['dimensi']);
+
+        $total = $totalLayanan + $biaya_antar;
+
+
+        // Generate ID transaksi
+        $idTransaksi = $this->generateIdTransaksi();
+
+        // SIMPAN TRANSAKSI
+        $transaksi = Transaksi::create([
+            'id_transaksi' => $idTransaksi,
+            'id_user' => $user->id,
+            'nama_pelanggan' => $validated['nama_pelanggan'],
+            'nama_kasir' => Auth::user()->name,
+            'alamat' => $validated['alamat'],
+            'nomor_hp' => $validated['nomor_hp'],
+            'status' => 'belum diproses',
+            'tanggal' => Carbon::now(),
+            'biaya_antar' => $biaya_antar,
+            'jarak_km' => $jarak,
+            'total' => $total,
+            'status_pembayaran' => 'belum dibayar',
         ]);
 
-
-        DB::beginTransaction();
-        try {
-            // Hitung biaya antar jemput
-            $biaya_antar = 0;
-            if ($request->antar_jemput === 'yes') {
-                $biaya_antar = $this->hitungBiayaAntarJemput($request->jarak_km);
-            }
-
-            // Total biaya semua layanan
-            $totalLayanan = collect($request->layanan)->sum(fn($item) => $item['harga'] * $item['dimensi']);
-            $total = $totalLayanan + $biaya_antar;
-
-            // Generate ID transaksi kustom
-            $idTransaksi = $this->generateIdTransaksi();
-
-            // Menyimpan transaksi
-            $transaksi = Transaksi::create([
+        foreach ($validated['layanan'] as $item) {
+            DetailTransaksi::create([
                 'id_transaksi' => $idTransaksi,
-                'id_user' => $user->id,
-                'nama_pelanggan' => $validated['nama_pelanggan'],
-                'nama_kasir' => $user->id,
-                'alamat' => $validated['alamat'],
-                'nomor_hp' => $validated['nomor_hp'],
-                'status' => 'belum diproses',
-                'tanggal' => Carbon::now(),
-                'biaya_antar' => $biaya_antar,
-                'jarak_km' => $request->jarak_km ?? 0,
-                'total' => $total,
-                'status_pembayaran' => 'belum dibayar',
+                'id_layanan' => $item['id_layanan'],
+                'harga' => $item['harga'],
+                'dimensi' => $item['dimensi'],
+                'satuan' => $item['satuan'],
+                'subtotal' => $item['harga'] * $item['dimensi'],
             ]);
-
-            foreach ($validated['layanan'] as $item) {
-
-                // Ambil data layanan dari database
-                $layanan = Layanan::find($item['id_layanan']);
-
-                DetailTransaksi::create([
-                    'id_transaksi' => $idTransaksi,
-                    'id_layanan' => $item['id_layanan'],
-                    'harga' => $item['harga'],
-                    'dimensi' => $item['dimensi'],
-                    'satuan' => $item['satuan'],
-                    'subtotal' => $item['harga'] * $item['dimensi'],
-                ]);
-            }
-
-            // Simpan status_pembayaran dan metode_pembayaran sesuai pilihan
-            if ($request->pembayaran_option === 'bayar_offline') {
-                $transaksi->update([
-                    'status_pembayaran' => 'sudah dibayar',
-                    'tanggal_pembayaran' => Carbon::now(),
-                    'metode_pembayaran' => 'cash',
-                ]);
-            } elseif ($request->pembayaran_option === 'bayar_nanti') {
-                $transaksi->update([
-                    'status_pembayaran' => 'belum dibayar',
-                    'metode_pembayaran' => null,
-                ]);
-            }
-
-            DB::commit();
-
-            // Redirect berdasarkan pilihan pembayaran
-
-            if ($request->pembayaran_option === 'bayar_online') {
-                return redirect()->route('admin.pembayaran.create', ['id_transaksi' => $idTransaksi])
-                    ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
-            } elseif ($request->pembayaran_option === 'bayar_offline') {
-                return redirect()->route('admin.pesanan.index')
-                    ->with('success', 'Pesanan berhasil dibuat dengan metode pembayaran Cash.');
-            } else {
-                return redirect()->route('admin.pesanan.index')
-                    ->with('success', 'Pesanan berhasil dibuat. Anda dapat membayar nanti.');
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan pesanan: ' . $e->getMessage()]);
         }
-    }
 
-    private function hitungBiayaAntarJemput($jarak_km)
-    {
-        if ($jarak_km <= 3) {
-            return 0;
+        // STATUS PEMBAYARAN
+        if ($request->pembayaran_option === 'bayar_offline') {
+            $transaksi->update([
+                'status_pembayaran' => 'sudah dibayar',
+                'tanggal_pembayaran' => Carbon::now(),
+                'metode_pembayaran' => 'cash',
+            ]);
+        } elseif ($request->pembayaran_option === 'bayar_nanti') {
+            $transaksi->update([
+                'status_pembayaran' => 'belum dibayar',
+                'metode_pembayaran' => null,
+            ]);
+        }
+
+        DB::commit();
+
+        // REDIRECT
+        if ($request->pembayaran_option === 'bayar_online') {
+            return redirect()->route('admin.pembayaran.create', ['id_transaksi' => $idTransaksi])
+                ->with('success', 'Pesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
+        } elseif ($request->pembayaran_option === 'bayar_offline') {
+            return redirect()->route('admin.pesanan.index')
+                ->with('success', 'Pesanan berhasil dibuat dengan metode pembayaran Cash.');
         } else {
-            return ($jarak_km - 3) * 5000;
+            return redirect()->route('admin.pesanan.index')
+                ->with('success', 'Pesanan berhasil dibuat. Anda dapat membayar nanti.');
         }
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withInput()->withErrors(['error' => 'Gagal menyimpan pesanan: ' . $e->getMessage()]);
     }
+}
+
+
+private function hitungBiayaAntarJemput($jarak_km)
+{
+    if ($jarak_km <= 3) {
+        return 0;
+    }
+    return ($jarak_km - 3) * 5000;
+}
+
 
     public function editStatus($id_transaksi)
     {
@@ -191,7 +205,7 @@ class PesananAdminController extends Controller
 
         // Hanya isi nama kasir jika masih kosong
         if (empty($transaksi->nama_kasir)) {
-            $transaksi->nama_kasir = Auth::user()->name ?? null;
+            $transaksi->nama_kasir = Auth::user()->name ;
         }
 
         $transaksi->save();
@@ -223,6 +237,13 @@ class PesananAdminController extends Controller
     }
 
 
+    public function detail($id_transaksi)
+    {
+        // Ambil transaksi beserta detail dan layanan
+        $transaksi = Transaksi::with(['detailTransaksi.layanan'])
+            ->where('id_transaksi', $id_transaksi)
+            ->firstOrFail();
 
-
+        return view('admin.pesanan.detail', compact('transaksi'));
+    }
 }

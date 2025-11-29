@@ -63,7 +63,7 @@
                                 <th class="text-center">Tanggal</th>
                                 <th class="text-center">Admin</th>
                                 <th class="text-center">Pelanggan</th>
-                                <th class="text-center">Subtotal</th>
+                                <th class="text-center">Total</th>
                                 <th class="text-center">Pembayaran</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Metode</th>
@@ -75,12 +75,11 @@
                                 <tr>
                                     <td class="fw-bold">{{ $trans->id_transaksi }}</td>
                                     <td>{{ $trans->tanggal->format('Y-m-d H:i') }}</td>
-                                    <td>{{ $trans->nama_kasir ?? ($trans->user && $trans->user->usertype === 'admin' ? $trans->user->name : '') }}</td>
+                                    <td>{{ $trans->nama_kasir ?? '' }}</td>
                                     <td>{{ $trans->nama_pelanggan }}</td>
                                     <td>
-                                        @php $subtotal = $trans->detailTransaksi->sum('subtotal'); @endphp
                                         <span class="badge bg-light text-dark fs-6">
-                                            Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                            Rp {{ number_format($trans->total, 0, ',', '.') }}
                                         </span>
                                     </td>
                                     <td>
@@ -97,71 +96,95 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if ($trans->status_pembayaran == 'belum dibayar' && empty($trans->metode_pembayaran))
-                                            {{-- Awalnya hanya tombol pilih --}}
-                                            <button type="button" class="btn btn-sm btn-outline-primary btn-show-form"
-                                                data-id="{{ $trans->id_transaksi }}">
-                                                <i class="fas fa-edit"></i> Pilih
-                                            </button>
+                                        {{-- ✅ JIKA BELUM DIBAYAR, BISA PILIH/UBAH METODE --}}
+                                        @if ($trans->status_pembayaran == 'belum dibayar' || empty($trans->status_pembayaran))
+                                            {{-- Jika metode belum ada, tampilkan tombol "Pilih" --}}
+                                            @if (empty($trans->metode_pembayaran))
+                                                <button type="button" class="btn btn-sm btn-outline-primary btn-show-form"
+                                                    data-id="{{ $trans->id_transaksi }}">
+                                                    <i class="fas fa-edit"></i> Pilih
+                                                </button>
+                                            @else
+                                                {{-- Jika metode sudah ada tapi belum dibayar, tampilkan badge + tombol ubah --}}
+                                                <div class="d-flex align-items-center gap-2 justify-content-center">
+                                                    <span class="badge bg-danger text-white px-3 py-2"
+                                                        id="badge-metode-{{ $trans->id_transaksi }}">
+                                                        {{ ucfirst($trans->metode_pembayaran) }}
+                                                    </span>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-warning btn-edit-metode"
+                                                        data-id="{{ $trans->id_transaksi }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                </div>
+                                            @endif
 
-                                            {{-- Form tersembunyi, muncul saat tombol pilih ditekan --}}
+                                            {{-- Form tersembunyi untuk pilih/ubah metode --}}
                                             <form class="form-set-metode d-none mt-2"
                                                 id="form-metode-{{ $trans->id_transaksi }}"
                                                 data-url="{{ route('admin.pembayaran.setMetodeDanBayar', $trans->id_transaksi) }}">
                                                 @csrf
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <select name="metode_pembayaran"
-                                                        class="form-select form-select-sm w-auto" required>
-                                                        <option value="" disabled selected>Pilih Metode</option>
-                                                        <option value="cash">Cash</option>
-                                                        <option value="online">Online</option>
+                                                    <select name="metode_pembayaran" class="form-select form-select-sm"
+                                                        style="width: 120px;" required>
+                                                        <option value="" disabled
+                                                            {{ empty($trans->metode_pembayaran) ? 'selected' : '' }}>Pilih
+                                                            Metode</option>
+                                                        <option value="cash"
+                                                            {{ $trans->metode_pembayaran == 'cash' ? 'selected' : '' }}>
+                                                            Cash</option>
+                                                        <option value="transfer"
+                                                            {{ $trans->metode_pembayaran == 'transfer' ? 'selected' : '' }}>
+                                                            Transfer</option>
                                                     </select>
-                                                    <button type="submit"
-                                                        class="btn btn-m btn-outline-success d-flex align-items-center justify-content-center">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
                                                         <i class="fas fa-save"></i>
+                                                    </button>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary btn-cancel-form"
+                                                        data-id="{{ $trans->id_transaksi }}">
+                                                        <i class="fas fa-times"></i>
                                                     </button>
                                                 </div>
                                             </form>
                                         @else
-                                            <span class="badge bg-secondary px-3 py-2">
+                                            {{-- Jika sudah dibayar, tampilkan badge hijau tanpa tombol edit --}}
+                                            <span class="badge bg-success px-3 py-2">
                                                 {{ ucfirst($trans->metode_pembayaran ?? '-') }}
                                             </span>
                                         @endif
                                     </td>
 
-
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('admin.pesanan.show', $trans->id_transaksi) }}"
                                                 class="btn btn-sm btn-outline-primary px-3 me-1">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="fas fa-receipt"></i>
                                             </a>
                                             <a href="{{ route('admin.pesanan.editStatus', $trans->id_transaksi) }}"
                                                 class="btn btn-sm btn-outline-warning px-3 me-1">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-
-                                            {{-- ✅ Aksi Bayar / Batal --}}
+                                            <a href="{{ route('admin.pesanan.detail', $trans->id_transaksi) }}"
+                                                class="btn btn-sm btn-outline-secondary px-3 me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                             @if ($trans->status !== 'pesanan selesai')
-                                                {{-- 🔹 Tampilkan Bayar hanya kalau belum dibayar --}}
-                                                @if ($trans->status_pembayaran == 'belum dibayar')
-                                                    @if (empty($trans->metode_pembayaran))
-                                                    @elseif ($trans->metode_pembayaran == 'cash')
-                                                        {{-- 💵 Bayar Cash --}}
-                                                        <button class="btn btn-sm btn-outline-success px-3 btn-bayar-cash"
+                                                @if ($trans->status_pembayaran == 'belum dibayar' && !empty($trans->metode_pembayaran))
+                                                    @if ($trans->metode_pembayaran == 'cash')
+                                                        <button
+                                                            class="btn btn-sm btn-outline-success px-3 btn-bayar-cash me-1"
                                                             data-url="{{ route('admin.pembayaran.bayarCash', $trans->id_transaksi) }}">
                                                             <i class="fas fa-credit-card"></i>
                                                         </button>
                                                     @else
-                                                        {{-- 🌐 Online Payment --}}
                                                         <a href="{{ route('admin.pembayaran.create', $trans->id_transaksi) }}"
-                                                            class="btn btn-sm btn-outline-success px-3">
+                                                            class="btn btn-sm btn-outline-success px-3 me-1">
                                                             <i class="fas fa-credit-card"></i>
                                                         </a>
                                                     @endif
                                                 @endif
 
-                                                {{-- ❌ Tombol batal selalu ada kalau belum selesai --}}
                                                 <button class="btn btn-sm btn-outline-danger px-3 btn-batal"
                                                     data-url="{{ route('admin.pesanan.batal', $trans->id_transaksi) }}">
                                                     <i class="fas fa-times-circle"></i>
@@ -201,19 +224,54 @@
     {{-- ✅ JS --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // 🔹 Tampilkan form metode saat klik "Pilih"
-        document.querySelectorAll('.btn-show-form').forEach(btn => {
-            btn.addEventListener('click', function() {
-                let id = btn.dataset.id;
-                let form = document.getElementById('form-metode-' + id);
-
-                btn.classList.add('d-none'); // sembunyikan tombol pilih
-                form.classList.remove('d-none'); // tampilkan form
-            });
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
-            // 🔹 Set Metode Pembayaran
+
+            // 🔹 Tampilkan form metode saat klik "Pilih"
+            document.querySelectorAll('.btn-show-form').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    let id = btn.dataset.id;
+                    let form = document.getElementById('form-metode-' + id);
+
+                    btn.classList.add('d-none'); // sembunyikan tombol pilih
+                    form.classList.remove('d-none'); // tampilkan form
+                });
+            });
+
+            // 🔹 Tampilkan form metode saat klik "Edit" (tombol pen)
+            document.querySelectorAll('.btn-edit-metode').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    let id = btn.dataset.id;
+                    let badge = document.getElementById('badge-metode-' + id);
+                    let form = document.getElementById('form-metode-' + id);
+                    let btnEdit = btn.parentElement; // div wrapper badge + button
+
+                    btnEdit.classList.add('d-none'); // sembunyikan badge + tombol edit
+                    form.classList.remove('d-none'); // tampilkan form
+                });
+            });
+
+            // 🔹 Cancel form (kembali ke tampilan badge/button)
+            document.querySelectorAll('.btn-cancel-form').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    let id = btn.dataset.id;
+                    let form = document.getElementById('form-metode-' + id);
+                    let badge = document.getElementById('badge-metode-' + id);
+
+                    form.classList.add('d-none'); // sembunyikan form
+
+                    // Cek apakah metode sudah ada atau belum
+                    if (badge) {
+                        // Jika sudah ada metode, tampilkan badge + tombol edit
+                        badge.parentElement.classList.remove('d-none');
+                    } else {
+                        // Jika belum ada metode, tampilkan tombol "Pilih"
+                        document.querySelector(`.btn-show-form[data-id="${id}"]`).classList.remove(
+                            'd-none');
+                    }
+                });
+            });
+
+            // 🔹 Set/Update Metode Pembayaran
             document.querySelectorAll('.form-set-metode').forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -225,7 +283,7 @@
                         text: 'Pastikan pilihan metode benar.',
                         icon: 'info',
                         showCancelButton: true,
-                        confirmButtonText: 'Pilih',
+                        confirmButtonText: 'Simpan',
                         cancelButtonText: 'Batal'
                     }).then(result => {
                         if (result.isConfirmed) {
@@ -240,7 +298,7 @@
                                 .then(data => {
                                     if (data.success) {
                                         Swal.fire('Berhasil', data.message ||
-                                                'Metode disimpan', 'success')
+                                                'Metode berhasil disimpan', 'success')
                                             .then(() => window.location.reload());
                                     } else {
                                         Swal.fire('Gagal', data.message ||
@@ -292,6 +350,7 @@
                     });
                 });
             });
+
             // 🔹 Batalkan Pesanan
             document.querySelectorAll('.btn-batal').forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -314,7 +373,7 @@
                             formData.append('_method', 'DELETE');
 
                             fetch(actionUrl, {
-                                    method: "POST", // spoofing DELETE
+                                    method: "POST",
                                     body: formData
                                 })
                                 .then(res => res.json())
@@ -327,7 +386,6 @@
                                                 'Pesanan berhasil dihapus',
                                             confirmButtonText: 'OK'
                                         }).then(() => {
-                                            // 🔹 Redirect setelah user klik "OK"
                                             window.location.href =
                                                 "{{ route('admin.pesanan.index') }}";
                                         });
@@ -342,7 +400,6 @@
                     });
                 });
             });
-
         });
     </script>
 @endsection

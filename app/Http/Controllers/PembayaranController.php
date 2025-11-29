@@ -97,7 +97,7 @@ class PembayaranController extends Controller
             $updateData = [
                 'status_pembayaran' => 'sudah dibayar',
                 'tanggal_pembayaran' => Carbon::now(),
-                'metode_pembayaran' => 'Transfer',
+                'metode_pembayaran' => 'transfer',
                 'snap_token' => $request->snap_token ?? null,
             ];
 
@@ -147,31 +147,55 @@ class PembayaranController extends Controller
 
 
     public function batalPesanan($id_transaksi)
-    {
-        $transaksi = Transaksi::find($id_transaksi);
+{
+    try {
+        // Cari transaksi berdasarkan id dan user yang login
+        $transaksi = Transaksi::where('id_transaksi', $id_transaksi)
+            ->where('id_user', Auth::id()) // ✅ Pastikan hanya user pemilik yang bisa batalkan
+            ->firstOrFail();
 
-        if (!$transaksi) {
+        // Cek apakah transaksi sudah dibayar
+        if ($transaksi->status_pembayaran === 'sudah dibayar') {
             return response()->json([
                 'success' => false,
-                'message' => 'Pesanan tidak ditemukan.'
-            ], 404);
+                'message' => 'Pesanan yang sudah dibayar tidak dapat dibatalkan.'
+            ], 400);
         }
 
-        try {
-            $transaksi->detailTransaksi()->delete();
-            $transaksi->delete();
+        DB::beginTransaction();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran berhasil dibatalkan.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membatalkan pesanan: ' . $e->getMessage()
-            ], 500);
-        }
+        // Hapus detail transaksi terlebih dahulu
+        DetailTransaksi::where('id_transaksi', $id_transaksi)->delete();
+
+        // Hapus transaksi
+        $transaksi->delete();
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesanan berhasil dibatalkan.'
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Pesanan tidak ditemukan atau Anda tidak memiliki akses.'
+        ], 404);
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        Log::error('Error batalPesanan: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal membatalkan pesanan: ' . $e->getMessage()
+        ], 500);
     }
+}
+
+
     public function bayarCash($id_transaksi)
     {
         try {
@@ -210,7 +234,7 @@ class PembayaranController extends Controller
 
             $dataUpdate = [
                 'metode_pembayaran' => $request->metode_pembayaran,
-                'status_pembayaran' => 'sudah dibayar',
+                'status_pembayaran' => 'belum dibayar',
                 'tanggal_pembayaran' => Carbon::now(),
             ];
 

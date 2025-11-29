@@ -248,7 +248,7 @@
                             title: 'Pembayaran Berhasil!',
                             text: data.message || 'Data pembayaran telah disimpan.',
                         }).then(() => {
-                            window.location.href = "{{ route('halaman.landing-page') }}";
+                            window.location.href = "{{ route('customer.pesanan.index') }}";
                         });
                     } else {
                         throw new Error(data.error || 'Pembayaran berhasil, tetapi data tidak disimpan.');
